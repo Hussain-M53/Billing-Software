@@ -1,0 +1,16 @@
+<Link
+        href={{
+          pathname: '/anotherpage',
+          query: {
+            search: 'search'
+          }
+        }}
+      >
+
+const AnotherPage = ({ searchParams }) => {
+  console.log(searchParams.search) // Logs "search"
+
+  ...
+}
+
+export default AnotherPage

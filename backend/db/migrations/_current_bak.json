@@ -1,0 +1,1237 @@
+{
+    "tables": {
+        "Billing": {
+            "tableName": "Billing",
+            "schema": {
+                "BillingId": {
+                    "primaryKey": true,
+                    "field": "BillingId",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "DocNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "DocNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "DocDate": {
+                    "field": "DocDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "fromDate": {
+                    "field": "fromDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "toDate": {
+                    "field": "toDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "RatePerTonHour": {
+                    "field": "RatePerTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "BoardMsg": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "BoardMsg",
+                    "seqType": "Sequelize.STRING"
+                },
+                "headingText": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "headingText",
+                    "seqType": "Sequelize.STRING"
+                },
+                "IssueDate": {
+                    "field": "IssueDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "DueDate": {
+                    "field": "DueDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "Remarks": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Remarks",
+                    "seqType": "Sequelize.STRING"
+                },
+                "TransDate": {
+                    "field": "TransDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "TransUID": {
+                    "allowNull": false,
+                    "name": "TransUID",
+                    "references": {
+                        "model": "users_web",
+                        "key": "id"
+                    },
+                    "onDelete": "NO ACTION",
+                    "onUpdate": "CASCADE",
+                    "field": "TransUID",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "CoID": {
+                    "allowNull": false,
+                    "name": "CoID",
+                    "references": {
+                        "model": "Profile",
+                        "key": "CoID"
+                    },
+                    "onDelete": "NO ACTION",
+                    "onUpdate": "CASCADE",
+                    "field": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        },
+        "Billing_Details": {
+            "tableName": "Billing_Details",
+            "schema": {
+                "RowNo": {
+                    "autoIncrement": true,
+                    "primaryKey": true,
+                    "field": "RowNo",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "BillNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "allowNull": false,
+                    "field": "BillNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "PreviousReadingTonHour": {
+                    "field": "PreviousReadingTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "CurrentReadingTonHour": {
+                    "field": "CurrentReadingTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "UnitsConsumedTonHour": {
+                    "field": "UnitsConsumedTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "RatePerTonHour": {
+                    "field": "RatePerTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "Amount": {
+                    "field": "Amount",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "OtherChargesText": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "OtherChargesText",
+                    "seqType": "Sequelize.STRING"
+                },
+                "OtherCharges": {
+                    "field": "OtherCharges",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "ArrearsText": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "ArrearsText",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Arrears": {
+                    "field": "Arrears",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "TotalAmount": {
+                    "field": "TotalAmount",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "claimedPer": {
+                    "field": "claimedPer",
+                    "seqType": "Sequelize.DECIMAL(18, 3)"
+                },
+                "TotalPayableAmount": {
+                    "field": "TotalPayableAmount",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "FromDate": {
+                    "field": "FromDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "ToDate": {
+                    "field": "ToDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "ServiceChargesText": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "ServiceChargesText",
+                    "seqType": "Sequelize.STRING"
+                },
+                "ServiceCharges": {
+                    "field": "ServiceCharges",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "AdditionalChargesText": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "AdditionalChargesText",
+                    "seqType": "Sequelize.STRING"
+                },
+                "AdditionalCharges": {
+                    "field": "AdditionalCharges",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "BillingId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Billing",
+                        "key": "BillingId"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "BillingId",
+                    "name": "BillingId",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "CID_web": {
+                    "allowNull": true,
+                    "name": "CID_web",
+                    "references": {
+                        "model": "Customer_web",
+                        "key": "CId"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "CID_web",
+                    "seqType": "Sequelize.BIGINT"
+                }
+            },
+            "indexes": []
+        },
+        "Profile": {
+            "tableName": "Profile",
+            "schema": {
+                "CoID": {
+                    "primaryKey": true,
+                    "field": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "Name": {
+                    "allowNull": false,
+                    "field": "Name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add1": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add1",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add2": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add2",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add3": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add3",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Contact": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Contact",
+                    "seqType": "Sequelize.STRING"
+                },
+                "ContactPerson": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "ContactPerson",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Fax": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Fax",
+                    "seqType": "Sequelize.STRING"
+                },
+                "GST": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "GST",
+                    "seqType": "Sequelize.STRING"
+                },
+                "NTN": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "NTN",
+                    "seqType": "Sequelize.STRING"
+                },
+                "NIC": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "NIC",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Nature": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Nature",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Description": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Email": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Email",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Website": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Website",
+                    "seqType": "Sequelize.STRING"
+                },
+                "LogoPath": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "LogoPath",
+                    "seqType": "Sequelize.STRING"
+                },
+                "SignPath": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "SignPath",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Watermark": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Watermark",
+                    "seqType": "Sequelize.STRING"
+                },
+                "TImgName": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "TImgName",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Disclaimer": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Disclaimer",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Def": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "Def",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "LLDate": {
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.Date"
+                    },
+                    "field": "LLDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "isSTax": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "isSTax",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "AttachPath_DC": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "AttachPath_DC",
+                    "seqType": "Sequelize.STRING"
+                },
+                "NameLocal": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "NameLocal",
+                    "seqType": "Sequelize.STRING"
+                },
+                "SPFactor": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "SPFactor",
+                    "seqType": "Sequelize.DECIMAL(18, 4)"
+                },
+                "TimeIn": {
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.NOW"
+                    },
+                    "field": "TimeIn",
+                    "seqType": "Sequelize.DATE"
+                },
+                "TimeOut": {
+                    "defaultValue": {
+                        "internal": true,
+                        "value": "Sequelize.NOW"
+                    },
+                    "field": "TimeOut",
+                    "seqType": "Sequelize.DATE"
+                },
+                "OverTimeFactor": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "OverTimeFactor",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "LateFactor": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "LateFactor",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "POCFactor": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "POCFactor",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "PHFactor": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "PHFactor",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "DaysPerMonth": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "DaysPerMonth",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "HoursPerDay": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "HoursPerDay",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "LeavesPerMonth": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "LeavesPerMonth",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "UnitRate_Lesco": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "UnitRate_Lesco",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "UnitRate_Genset": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "UnitRate_Genset",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "MeterRentLesco": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "MeterRentLesco",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "FixedChargesGenset": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "FixedChargesGenset",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "NoOfTenants": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "NoOfTenants",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "ServiceChargesPerSqft": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "ServiceChargesPerSqft",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "WaterChargesMonthly": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "WaterChargesMonthly",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "STaxPerPunjab": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "STaxPerPunjab",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "isAfterDueDatePercent": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "isAfterDueDatePercent",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "AfterDueDatePenaltyAmount": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "AfterDueDatePenaltyAmount",
+                    "seqType": "Sequelize.DECIMAL(18)"
+                },
+                "AfterDueDatePenaltyPercent": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "AfterDueDatePenaltyPercent",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "ExhaustFanTableId_Lesco": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "ExhaustFanTableId_Lesco",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "ExhaustFanTableId_Genset": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "ExhaustFanTableId_Genset",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "AccountTitle": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "AccountTitle",
+                    "seqType": "Sequelize.STRING"
+                },
+                "AccountNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "AccountNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "BankName": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "BankName",
+                    "seqType": "Sequelize.STRING"
+                },
+                "DisableExhaustFan": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "DisableExhaustFan",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "DisableWater": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "DisableWater",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "DisableServiceCharges": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "DisableServiceCharges",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "RatePerTonHour": {
+                    "defaultValue": {
+                        "value": 0
+                    },
+                    "field": "RatePerTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                }
+            },
+            "indexes": []
+        },
+        "Customer_web": {
+            "tableName": "Customer_web",
+            "schema": {
+                "CId": {
+                    "autoIncrement": true,
+                    "primaryKey": true,
+                    "field": "CId",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "CName": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "CName",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Code": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Code",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add1": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add1",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add2": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add2",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Add3": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Add3",
+                    "seqType": "Sequelize.STRING"
+                },
+                "ContactPerson": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "ContactPerson",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Fax": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Fax",
+                    "seqType": "Sequelize.STRING"
+                },
+                "SalesTaxNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "SalesTaxNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "TelNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "TelNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Email": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Email",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Website": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Website",
+                    "seqType": "Sequelize.STRING"
+                },
+                "MobNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "MobNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Notes": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "Notes",
+                    "seqType": "Sequelize.STRING"
+                },
+                "NTN": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "NTN",
+                    "seqType": "Sequelize.STRING"
+                },
+                "CNIC": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "CNIC",
+                    "seqType": "Sequelize.STRING"
+                },
+                "Disabled": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "Disabled",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "claimedPer": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": 100
+                    },
+                    "field": "claimedPer",
+                    "seqType": "Sequelize.DECIMAL(10, 3)"
+                },
+                "status": {
+                    "allowNull": false,
+                    "defaultValue": {
+                        "value": true
+                    },
+                    "field": "status",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "enable_date": {
+                    "allowNull": false,
+                    "field": "enable_date",
+                    "seqType": "Sequelize.DATEONLY"
+                },
+                "disable_date": {
+                    "field": "disable_date",
+                    "seqType": "Sequelize.DATEONLY"
+                },
+                "CoID": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Profile",
+                        "key": "CoID"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "CoID",
+                    "name": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "MeterId": {
+                    "allowNull": false,
+                    "name": "MeterId",
+                    "references": {
+                        "model": "meters",
+                        "key": "id"
+                    },
+                    "onDelete": "NO ACTION",
+                    "onUpdate": "CASCADE",
+                    "field": "MeterId",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        },
+        "floors_web": {
+            "tableName": "floors_web",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "description": {
+                    "field": "description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_by": {
+                    "field": "created_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "updated_by": {
+                    "field": "updated_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "CoID": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Profile",
+                        "key": "CoID"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "CoID",
+                    "name": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        },
+        "history_config": {
+            "tableName": "history_config",
+            "schema": {
+                "ID": {
+                    "primaryKey": true,
+                    "field": "ID",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "ID_": {
+                    "field": "ID_",
+                    "seqType": "Sequelize.STRING"
+                },
+                "HISTORYNAME": {
+                    "field": "HISTORYNAME",
+                    "seqType": "Sequelize.STRING"
+                },
+                "SOURCE": {
+                    "field": "SOURCE",
+                    "seqType": "Sequelize.STRING"
+                },
+                "SOURCEHANDLE": {
+                    "field": "SOURCEHANDLE",
+                    "seqType": "Sequelize.STRING"
+                },
+                "TIMEZONE": {
+                    "field": "TIMEZONE",
+                    "seqType": "Sequelize.STRING"
+                },
+                "INTERVAL_": {
+                    "field": "INTERVAL_",
+                    "seqType": "Sequelize.STRING"
+                },
+                "VALUEFACETS": {
+                    "field": "VALUEFACETS",
+                    "seqType": "Sequelize.STRING"
+                },
+                "TABLE_NAME": {
+                    "field": "TABLE_NAME",
+                    "seqType": "Sequelize.STRING"
+                },
+                "DB_TIMEZONE": {
+                    "field": "DB_TIMEZONE",
+                    "seqType": "Sequelize.STRING"
+                }
+            },
+            "indexes": []
+        },
+        "historytable": {
+            "tableName": "historytable",
+            "schema": {
+                "HistoryTableId": {
+                    "primaryKey": true,
+                    "field": "HistoryTableId",
+                    "seqType": "Sequelize.BIGINT"
+                },
+                "TableName": {
+                    "allowNull": false,
+                    "field": "TableName",
+                    "seqType": "Sequelize.STRING"
+                }
+            },
+            "indexes": []
+        },
+        "meters": {
+            "tableName": "meters",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "description": {
+                    "field": "description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "status": {
+                    "field": "status",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "peakHourCalculation": {
+                    "defaultValue": {
+                        "value": false
+                    },
+                    "field": "peakHourCalculation",
+                    "seqType": "Sequelize.BOOLEAN"
+                },
+                "history_config_id": {
+                    "field": "history_config_id",
+                    "allowNull": true,
+                    "references": {
+                        "model": "history_config",
+                        "key": "ID"
+                    },
+                    "onDelete": "NO ACTION",
+                    "onUpdate": "CASCADE",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "created_by": {
+                    "field": "created_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "updated_by": {
+                    "field": "updated_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "CoID": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "Profile",
+                        "key": "CoID"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "CoID",
+                    "name": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "floor_id": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "floors_web",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "floor_id",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        },
+        "permissions": {
+            "tableName": "permissions",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "uq_key": {
+                    "field": "uq_key",
+                    "seqType": "Sequelize.STRING"
+                },
+                "group_name": {
+                    "field": "group_name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "roles": {
+            "tableName": "roles",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "description": {
+                    "field": "description",
+                    "seqType": "Sequelize.STRING"
+                },
+                "key": {
+                    "field": "key",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_by": {
+                    "field": "created_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "updated_by": {
+                    "field": "updated_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "permissions": {
+                    "field": "permissions",
+                    "seqType": "Sequelize.TEXT"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                }
+            },
+            "indexes": []
+        },
+        "UnitAdjustment": {
+            "tableName": "UnitAdjustment",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "docNo": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "docNo",
+                    "seqType": "Sequelize.STRING"
+                },
+                "docDate": {
+                    "field": "docDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "fromDate": {
+                    "field": "fromDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "toDate": {
+                    "field": "toDate",
+                    "seqType": "Sequelize.DATE"
+                },
+                "currentUnitsTonHour": {
+                    "field": "currentUnitsTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "finalUnitsTonHour": {
+                    "field": "finalUnitsTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "diffUnitsTonHour": {
+                    "field": "diffUnitsTonHour",
+                    "seqType": "Sequelize.DECIMAL(18, 2)"
+                },
+                "remarks": {
+                    "defaultValue": {
+                        "value": ""
+                    },
+                    "field": "remarks",
+                    "seqType": "Sequelize.STRING"
+                },
+                "created_by": {
+                    "field": "created_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "updated_by": {
+                    "field": "updated_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "MeterId": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "meters",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "MeterId",
+                    "name": "MeterId",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "CoID": {
+                    "allowNull": false,
+                    "name": "CoID",
+                    "references": {
+                        "model": "Profile",
+                        "key": "CoID"
+                    },
+                    "onDelete": "NO ACTION",
+                    "onUpdate": "CASCADE",
+                    "field": "CoID",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        },
+        "users_web": {
+            "tableName": "users_web",
+            "schema": {
+                "id": {
+                    "allowNull": false,
+                    "primaryKey": true,
+                    "autoIncrement": true,
+                    "field": "id",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "username": {
+                    "field": "username",
+                    "seqType": "Sequelize.STRING"
+                },
+                "name": {
+                    "field": "name",
+                    "seqType": "Sequelize.STRING"
+                },
+                "email": {
+                    "field": "email",
+                    "seqType": "Sequelize.STRING"
+                },
+                "type": {
+                    "field": "type",
+                    "seqType": "Sequelize.STRING"
+                },
+                "password": {
+                    "field": "password",
+                    "seqType": "Sequelize.STRING"
+                },
+                "token": {
+                    "field": "token",
+                    "seqType": "Sequelize.TEXT"
+                },
+                "created_by": {
+                    "field": "created_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "updated_by": {
+                    "field": "updated_by",
+                    "seqType": "Sequelize.INTEGER"
+                },
+                "createdAt": {
+                    "allowNull": false,
+                    "field": "createdAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "updatedAt": {
+                    "allowNull": false,
+                    "field": "updatedAt",
+                    "seqType": "Sequelize.DATE"
+                },
+                "role_id": {
+                    "allowNull": true,
+                    "references": {
+                        "model": "roles",
+                        "key": "id"
+                    },
+                    "onDelete": "SET NULL",
+                    "onUpdate": "CASCADE",
+                    "field": "role_id",
+                    "seqType": "Sequelize.INTEGER"
+                }
+            },
+            "indexes": []
+        }
+    },
+    "path": "E:\\Project\\JS Center Meter Billing\\source-dev-my\\backend\\db\\migrations\\_current.json",
+    "backupPath": "E:\\Project\\JS Center Meter Billing\\source-dev-my\\backend\\db\\migrations\\_current_bak.json",
+    "exists": true,
+    "revision": 4
+}
