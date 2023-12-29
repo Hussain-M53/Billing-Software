@@ -11,10 +11,8 @@ const unitAdjustmentResource = async (unitAdjustment) => {
         finalUnitsTonHour: unitAdjustment.finalUnitsTonHour,
         diffUnitsTonHour: unitAdjustment.diffUnitsTonHour,
         meter: await unitAdjustment.getMeter(),
-        floor: unitAdjustment.MeterId == null ? null : await func.getCustomerFloor(unitAdjustment.MeterId),
+        floor: unitAdjustment.MeterId == null ? null : await func.getSpaceFloor(unitAdjustment.MeterId),
         MeterId: unitAdjustment.MeterId,
-        CoID: unitAdjustment.CoID,
-        //company: await unitAdjustment.getCompany(),
         remarks: unitAdjustment.remarks,
     }
 }

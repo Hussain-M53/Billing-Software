@@ -152,16 +152,15 @@ export const fetch_floor = async (token, id) => {
     }
 }
 
-export const create_meter = async (token, id, user) => {
+export const create_meter = async (token, id, meter) => {
+    console.log(meter)
     try {
         const response = await api.post(`meters/?user_id=${id}&token=${token}`,
             {
-                username: user.username,
-                name: user.name,
-                email: user.email,
-                password: user.password,
-                confirm_password: user.confirm_password,
-                role_id: user.status,
+                name: meter.name,
+                description: meter.description,
+                status: meter.status,
+                history_config_id: meter.meterTable,
             },
             {
                 headers: {
@@ -203,14 +202,16 @@ export const create_meter = async (token, id, user) => {
 }
 
 export const update_meter = async (token, id, meter) => {
+
+
     try {
         const response = await api.put(`meters/${meter.id}?user_id=${id}&token=${token}`,
             {
                 name: meter?.name,
                 description: meter?.description,
-                floor_id: meter?.floor?.id,
                 history_config_id: meter?.history_config_id,
                 status: meter?.status,
+
             },
             {
                 headers: {

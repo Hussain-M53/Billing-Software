@@ -9,8 +9,6 @@ const {Op} = require('sequelize')
 const ResponseType = require('../enums/ResponseType')
 const moment = require('moment');
 const BillingDetailsResource = require("../resources/BillingDetailsResource");
-const Company = db.Company;
-
 
 module.exports = {
     async getNewId(){
@@ -58,7 +56,7 @@ module.exports = {
 
     async create(req, res) {
         let response = null;
-        const {DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, CoID, billingDetails, previewData,headingText,} = req.body;
+        const {DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, billingDetails, previewData,headingText,} = req.body;
 
         const id = await module.exports.getNewId();
 
@@ -83,7 +81,6 @@ module.exports = {
             BoardMsg: "",
             Remarks: "",
             headingText: headingText,
-            CoID: CoID,
             TransUID:req.user.user_id,
           };
         
@@ -143,9 +140,9 @@ module.exports = {
                   //console.log('Transaction committed.');
 
                   //' update Rate/Ton-hour default - in company
-                    const company = await Company.update({
-                        RatePerTonHour: RatePerTonHour,
-                    }, {where: {CoID: CoID}})
+                    // const company = await Company.update({
+                    //     RatePerTonHour: RatePerTonHour,
+                    // }, {where: {CoID: CoID}})
 
                     //console.log("\n\n billing",billing);
                     //console.log("\n\n BillingResource",await BillingResource(billing));
@@ -167,19 +164,7 @@ module.exports = {
             return res.status(409).json({'message': 'Some error occured'});
         }
 
-        // console.log("\n\n billing",billing);
-
-        // const isEmpty = Object.keys(billing).length === 0;
-        // if (isEmpty){
-        //     response = res.status(409).json({'message': 'Some error occured'});
-        // }else{
-        //     response = res.status(201).json({
-        //         message: 'Bill(s) generated successfully.',
-        //         billing: BillingResource(billing)
-        //     });
-        // }
-
-        // return response;
+      
     },
 
     async billings(req, res) {
@@ -303,7 +288,7 @@ module.exports = {
             // get last 15 billing details for each customer
             const billingDetailsWithHistory_ = await Promise.all(
                 billingWithHistory_.billingDetails.map(async (billingDetail)=>{
-                    let limit=15;
+                    // let limit=30;
                     let order = [
                         //['RowNo', 'DESC'],
                         ['BillingId', 'DESC']
@@ -318,7 +303,7 @@ module.exports = {
                                 }
                             },
                         order: order,
-                        limit: limit,
+                        // limit: limit,
                     })
                     // add DocNo to billingDetailsHistory from its parent
                     billingDetailsHistory = await Promise.all(
@@ -444,9 +429,9 @@ module.exports = {
             //console.log('Transaction committed.');
 
             //' update Rate/Ton-hour default - in company
-              const company = await Company.update({
-                  RatePerTonHour: RatePerTonHour,
-              }, {where: {CoID: CoID}})
+            //   const company = await Company.update({
+            //       RatePerTonHour: RatePerTonHour,
+            //   }, {where: {CoID: CoID}})
 
               // get updated record
               billing = await Billing.findByPk(id);

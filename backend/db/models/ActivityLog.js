@@ -10,18 +10,13 @@ module.exports = (sequelize, DataTypes, Model) => {
                     name: 'UserID',
                     allowNull: false
                 },
-                as: 'users',
+                as: 'user',
             });
 
         }
     }
 
     ActivityLog.init({
-        LogID: {
-            type: DataTypes.BIGINT,
-            autoIncrement: true,
-            primaryKey: true,
-        },
         OperationType: { type: DataTypes.STRING, allowNull: false, defaultValue: "" },
         Description: { type: DataTypes.STRING, allowNull: false, defaultValue: "" },
     },
@@ -30,7 +25,8 @@ module.exports = (sequelize, DataTypes, Model) => {
             sequelize,
             tableName: 'ActivityLog',
             modelName: 'ActivityLog',
-            timestamps: false,
+            timestamps: true,
+
         });
     return ActivityLog;
 };

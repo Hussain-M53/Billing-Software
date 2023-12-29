@@ -1,7 +1,6 @@
 'use client';
 
 import Link from "next/link";
-import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useRouter } from "next/navigation";
 import { useContext, useEffect, useState } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
@@ -126,7 +125,12 @@ const Page = () => {
 
                 <td className="py-2 px-6 text-center">
                   <button className="bg-orange-500 hover:bg-transparent border hover:border-orange-500 hover:text-orange-500 text-white font-bold text-xs py-2 px-3 rounded">
-                    <Link href={'#'}>
+                    <Link href={{
+                      pathname: 'Billing/details',
+                      query: {
+                        id: row?.BillingId,
+                      }
+                    }}>
                       Details
                     </Link>
                   </button>

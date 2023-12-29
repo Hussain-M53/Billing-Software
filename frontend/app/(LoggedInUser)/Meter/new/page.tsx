@@ -2,15 +2,14 @@
 
 import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
 import Link from "next/link";
-import { fetch_meterTables,create_meter ,fetch_floor} from "@/utils/meter";
+import { fetch_meterTables, create_meter } from "@/utils/meter";
 import { AuthContext } from "@/app/_context/AuthContext";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
     const { user } = useContext(AuthContext);
     const [meterTables, setMeterTables] = useState([] as any);
-    const [floors, setFloors] = useState([] as any);
-    const [data,setData] = useState({});
+    const [data, setData] = useState({});
     const router = useRouter();
 
     useEffect(() => {
@@ -24,18 +23,8 @@ const Page = () => {
                 router.push('/Meter');
             }
         }
-        const fetch_floors = async () => {
-            const response = await fetch_floor(user.token, user.user.id);
-            if (response?.status == 200) {
-              console.log(response)
-              setFloors(response?.message?.floors);
-            } else {
-              alert(response?.message);
-              router.push('/Meter');
-            }
-        }
+
         fetch_meters();
-        fetch_floors();
     }, [])
 
     const handleSubmit = (e: FormEvent) => {
@@ -80,21 +69,22 @@ const Page = () => {
                 </div>
 
                 <div className="sm:col-span-3">
-                    <label htmlFor="floor" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Floor
+                    <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">
+                        Select Meter Type (To be implemented)
                     </label>
                     <div className="mt-2">
                         <select
-                            id="floor"
-                            name="floor"
-                            placeholder="Floor ABC"
+                            id="type"
+                            name="type"
+                            placeholder="Select meter type"
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                             <option disabled selected style={{ display: 'none' }} className='text-gray-300' >e.g: JS-FLOOR 16</option>
-                            {floors?.map((floor : any, idx: number) => (
-                                <option key={idx} value={floor.id}>{floor.name}</option>
-                            ))}
+                            <option> Electrical Meter</option>
+                            <option>BTU Meter </option>
+                            <option>Gas Meter</option>
+                            <option>Water Meter </option>
+
                         </select>
                     </div>
                 </div>
@@ -128,8 +118,8 @@ const Page = () => {
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                            <option>Enabled</option>
-                            <option>Disabled</option>
+                            <option value={1}>Enabled</option>
+                            <option value={0}>Disabled</option>
                         </select>
                     </div>
                 </div>
@@ -146,9 +136,9 @@ const Page = () => {
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                             <option disabled selected style={{ display: 'none' }} className='text-gray-300' >e.g: JS-FLOOR 16</option>
-                            {meterTables?.map((meterTable : any, idx: number) => (
-                                <option key={idx} value={meterTable.id}>{meterTable.name}</option>
+                            <option disabled selected style={{ display: 'none' }} className='text-gray-100' >e.g: JS-METER ABC</option>
+                            {meterTables?.map((meterTable: any, idx: number) => (
+                                <option key={idx} value={meterTable.id}>{meterTable.table}</option>
                             ))}
                         </select>
                     </div>

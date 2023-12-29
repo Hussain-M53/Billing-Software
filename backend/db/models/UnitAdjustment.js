@@ -8,15 +8,7 @@ module.exports = (sequelize, DataTypes, Model) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            UnitAdjustment.belongsTo(models.Company, {
-                foreignKey: {
-					name:'CoID',
-					//DataTypes.INTEGER,
-					//defaultValue: 1,
-					allowNull: false
-				},
-                as: 'company',
-            });
+          
             UnitAdjustment.belongsTo(models.Meter, {
                 foreignKey: {
 					name:'MeterId',

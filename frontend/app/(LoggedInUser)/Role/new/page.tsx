@@ -7,7 +7,7 @@ import { create_role } from '../../../../utils/role'
 import { useRouter } from 'next/navigation'
 
 const Page = () => {
-    const groups = ['Company', 'Floor', 'Meter', 'Customer', 'Space', 'Unit Adjustment', 'User', 'Role', 'Billing'];
+    const groups = ['Floor', 'Meter', 'Customer', 'Space', 'Unit Adjustment', 'User', 'Role', 'Billing','ActivityLog'];
     const permissions = ['View', 'Create', 'Update', 'Delete', 'Print'];
     const { user } = useContext(AuthContext);
     const router = useRouter();

@@ -1,7 +1,6 @@
 const db = require('../../db/models');
 const User = db.User;
 const Meter = db.Meter;
-const MeterResource = require('../../resources/MeterResource');
 
 const isAssigned = async (req, permission_key) => {
     const user = await User.findOne({
@@ -51,11 +50,10 @@ const isSuperUser = async (user_id) => {
 
     return is_super;
 }
-const getCustomerFloor = async (MeterId) => {
+const getSpaceFloor = async (MeterId) => {
 
-    //console.log("Meter id............", MeterId);
     let floor = await db.sequelize.query(`SELECT f.* FROM floors_web AS f 
-    WHERE f.id IN (SELECT m.floor_id FROM meters AS m WHERE m.id = ${MeterId})`, {
+    WHERE f.id IN (SELECT s.floor_id FROM spaces AS s WHERE s.meter_id = ${MeterId})`, {
         type: db.sequelize.QueryTypes.SELECT
     })
 
@@ -92,7 +90,7 @@ module.exports = {
     sendResponse,
     getPermission,
     isSuperUser,
-    getCustomerFloor,
+    getSpaceFloor,
     formatDate,
     tonFactor,
     formatDate_DayMonth,

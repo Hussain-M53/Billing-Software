@@ -1,7 +1,7 @@
 const db = require("../db/models");
 const Meter = db.Meter;
 const HistoryConfig = db.HistoryConfig;
-const Customer = db.Customer;
+const Space = db.Space;
 const MeterResource = require('../resources/MeterResource')
 const MeterCollection = require('../resources/collections/MeterCollection')
 const Paging = require('../helpers/Paging')
@@ -17,14 +17,12 @@ const { count } = require("console");
 module.exports = {
     async create(req, res) {
         let response = null;
-        const { name, description, floor_id, history_config_id, status } = req.body;
+        const { name, description, history_config_id, status } = req.body;
         const meter = await Meter.create({
             name,
             description,
-            floor_id,
             history_config_id,
             status,
-            CoID:1,
             created_by: req.query.user_id,
         });
         response = res.status(201).json({
@@ -100,15 +98,13 @@ module.exports = {
     },
     async update(req, res) {
         const id = req.params.id;
-        const { name, description, floor_id, history_config_id, status } = req.body;
+        const { name, description, history_config_id, status } = req.body;
         let meter = await Meter.findByPk(id);
         meter.set({
             name: name,
             description: description,
-            floor_id: floor_id,
             history_config_id,
             status,
-            CoID : 1,
             updated_by: req.query.user_id,
         })
         await meter.save()
@@ -117,15 +113,14 @@ module.exports = {
     async destroy(req, res) {
         const id = req.params.id;
 
-        let customers = await Customer.findAndCountAll({
+        let space = await Space.findAndCountAll({
             where: {
-                MeterId: id
+                meter_id: id
             },
         });
-        //console.log("customers........",customers);
 
-        if (customers.count > 0) {
-            return res.status(409).json({ 'message': 'This meter cannot be deleted as it is associated with some customers' });
+        if (space.count > 0) {
+            return res.status(409).json({ 'message': 'This meter cannot be deleted as it is associated with a space' });
         } else {
             await Meter.destroy({
                 where: {
@@ -136,10 +131,10 @@ module.exports = {
         return res.status(200).json({ 'message': 'Meter deleted successfully.' });
     },
     async metersForTag(req, res) {
-        let customer_id = req.query.customer_id;
-        if (customer_id) {
-            console.log("getting no free meters")
-            let meter_ids = await module.exports.getMeterIdsByCustomer(customer_id)
+        let space_id = req.query.space_id;
+        if (space_id) {
+            console.log("getting only booked/tagged meters")
+            let meter_ids = await module.exports.getMeterIdsBySpace(space_id)
             let meters = await Meter.findAll({
                 where: {
                     id: { [Op.in]: meter_ids },
@@ -147,6 +142,7 @@ module.exports = {
             })
             return res.status(200).json({ meters: await MeterCollection(meters, ResponseType.COMPACT) })
         } else {
+            console.log("getting free meters / not associated with any space")
             //enabled meters and meters which are not attached to customers(or attached to disable customers)
             const meter_ids = await module.exports.getMetersIdsForTagging();
             let meters = await Meter.findAll({
@@ -428,17 +424,17 @@ module.exports = {
 
     //get meters for tagging
     async getMetersIdsForTagging() {
-        let customers = await Customer.findAll();
+        let spaces = await Space.findAll();
         let meter_ids = [];
         let count = 0;
-        for (const customer of customers) {
+        for (const space of spaces) {
             const meter = await Meter.findOne({
                 where: {
-                    id: customer.CId,
+                    id: space.meter_id,
                     status: true
                 }
             });
-            // console.log("meter : ", JSON.stringify(meter))
+            console.log("meter : ", JSON.stringify(meter))
             if (meter) {
                 count = count + 1;
                 meter_ids.push(meter.id);
@@ -451,13 +447,13 @@ module.exports = {
                 id: { [Op.notIn]: meter_ids },
                 status: true
             },
-            attributes: ['id'],
+            // attributes: ['id'],
             raw: true
         }).then(meters => meters.map(meter => meter.id));
     }
     ,
 
-    async getMeterIdsByCustomer(customer_id) {
+    async getMeterIdsBySpace(space_id) {
         return await CustomerMeter.findAll({
             where: {
                 customer_id: customer_id
@@ -475,11 +471,11 @@ module.exports = {
     }
     ,
     getMeterIdsByMeters: async function (meter_ids) {
-        return await CustomerMeter.findAll({
-            attributes: ['meter_id'],
+        return await Meter.findAll({
+            // attributes: ['id'],
             raw: true,
             where: {
-                meter_id: { [Op.in]: meter_ids },
+                id: { [Op.in]: meter_ids },
             }
         }).then(meters => meters.map(meter => meter.meter_id));
     }

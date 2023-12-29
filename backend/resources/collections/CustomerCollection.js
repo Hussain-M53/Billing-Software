@@ -4,9 +4,6 @@ const CustomerCollection = async (customers, responseType = ResponseType.FULL) =
     let data = [];
     if (responseType === ResponseType.FULL) {
         for (const customer of customers) {
-            
-            //console.log("customer..........",customer);
-
             data.push(await CustomerResource(customer))
         }
     } else if (responseType === ResponseType.COMPACT) {

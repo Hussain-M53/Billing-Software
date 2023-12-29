@@ -84,11 +84,6 @@ module.exports = {
                     },
                 ]
             }
-            //// as for grid data all customers should be returned
-            // condition = Object.assign(
-            //     {
-            //         status: true,
-            //     },condition);    
 
             let order = [
                 ['Code', 'ASC']
@@ -106,6 +101,8 @@ module.exports = {
                     const customers = await CustomerCollection(data.rows);
                     const pagination = await Paging.getPagingData(data, currentPage, limit, search);
                     res.status(200).json({ customers, pagination });
+                }).catch(err => {
+                    console.log("Error : ",err)
                 });
         } else if (response_type === ResponseType.FULL) {
             console.log("\n\n response full");
@@ -126,16 +123,6 @@ module.exports = {
 
             return res.status(200).json({ customers: await CustomerCollection(customers) })
         }
-    },
-
-    async companyCustomers(req, res) {
-        const CoID = req.params.CoID;
-        const customers = await Customer.findAll({
-            where: {
-                CoID: CoID
-            }
-        });
-        return res.status(200).json({ customers: await CustomerCollection(customers) });
     },
 
     async customer(req, res) {

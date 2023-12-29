@@ -11,7 +11,6 @@ import Fetching from "@/app/_component/loading/fetching";
 const Page = (params: any) => {
     const { user } = useContext(AuthContext);
     const [meterTables, setMeterTables] = useState([] as any);
-    const [floors, setFloors] = useState([] as any);
     const [data, setData] = useState<any>({});
     const [save, setSave] = useState(false);
     const router = useRouter();
@@ -46,18 +45,8 @@ const Page = (params: any) => {
                 router.push('/Meter');
             }
         }
-        const fetch_floors = async () => {
-            const response = await fetch_floor(user.token, user.user.id);
-            if (response?.status == 200) {
-                console.log(response)
-                setFloors(response?.message?.floors);
-            } else {
-                alert(response?.message);
-                router.push('/Meter');
-            }
-        }
+
         fetch_vacantMeterTables();
-        fetch_floors();
     }, [])
 
     const handleSubmit = (e: FormEvent) => {
@@ -111,35 +100,37 @@ const Page = (params: any) => {
                 </div>
 
                 <div className="sm:col-span-3">
-                    <label htmlFor="floor" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Floor
+                    <label htmlFor="type" className="block text-sm font-medium leading-6 text-gray-900">
+                        Select Meter Type (To be implemented)
                     </label>
                     <div className="mt-2">
                         <select
-                            id="floor"
-                            name="floor"
-                            placeholder="Floor ABC"
-                            defaultValue={data?.floor?.id}
+                            id="type"
+                            name="type"
+                            placeholder="Select meter type"
+                            defaultValue={data?.status}
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                            {floors?.map((floor: any, idx: number) => (
-                                <option key={idx} value={floor.id}>{floor.name}</option>
-                            ))}
+                            <option> Electrical Meter</option>
+                            <option>BTU Meter </option>
+                            <option>Gas Meter</option>
+                            <option>Water Meter </option>
+
                         </select>
                     </div>
                 </div>
 
                 <div className="sm:col-span-full">
-                    <label htmlFor="desc" className="block text-sm font-medium leading-6 text-gray-900">
+                    <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">
                         Description
                     </label>
                     <div className="mt-2">
                         <input
                             type="text"
-                            name="desc"
-                            id="desc"
-                            autoComplete="desc"
+                            name="description"
+                            id="description"
+                            autoComplete="description"
                             placeholder="Enter description of the meter..."
                             defaultValue={data?.description}
                             onChange={(e) => handleChange(e)}
@@ -161,8 +152,8 @@ const Page = (params: any) => {
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                            <option>Enabled</option>
-                            <option>Disabled</option>
+                            <option value={1}>Enabled</option>
+                            <option value={0}>Disabled</option>
                         </select>
                     </div>
                 </div>
@@ -180,7 +171,7 @@ const Page = (params: any) => {
                         >
                             <option selected>{data?.history_config?.TABLE_NAME}</option>
                             {meterTables?.map((meterTable: any, idx: number) => (
-                                <option key={idx} value={meterTable?.id}>{meterTable?.name}</option>
+                                <option key={idx} value={meterTable?.id}>{meterTable?.table}</option>
                             ))}
                         </select>
                     </div>

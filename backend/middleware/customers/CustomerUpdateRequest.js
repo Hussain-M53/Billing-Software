@@ -15,9 +15,9 @@ exports.customerUpdateRequest = [
     body('MeterId')
         .not().isEmpty()
         .withMessage('Meter is not selected'),
-    body('CoID')
-        .not().isEmpty()
-        .withMessage('Invalid Company'),
+    // body('CoID')
+    //     .not().isEmpty()
+    //     .withMessage('Invalid Company'),
     // body('contact')
     //     .not().isEmpty()
     //     .withMessage('Invalid contact entered.'),

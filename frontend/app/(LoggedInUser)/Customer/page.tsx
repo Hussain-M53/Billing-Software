@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState,FormEvent } from 'react'
+import { useContext, useEffect, useState, FormEvent } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
 import { delete_customer, fetch_customers } from '../../../utils/customer'
 import Authorizing from "@/app/_component/loading/authorizing";
@@ -108,30 +108,30 @@ const Page = () => {
               <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
                 <td className="py-2 px-6 text-left whitespace-nowrap">
                   <div className="flex items-center">
-                    <span className="font-medium">{row.CName}</span>
+                    <span className="font-medium">{row?.CName}</span>
                   </div>
                 </td>
                 <td className="py-2 px-6 text-left">
                   <div className="flex items-center">
-                    <span>{row.Code}</span>
+                    <span>{row?.space?.name}</span>
                   </div>
                 </td>
                 <td className="py-2 px-6 text-center">
-                  {row.floor.name}
+                  {row?.space?.floor?.name}
                 </td>
                 <td className="py-2 px-6 text-center">
-                  {row.meter.name}
+                  {row?.space?.meter?.name}
                 </td>
 
                 <td className="py-2 px-6 text-center">
                   <div className={`${row.status === true ? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20' : 'text-red-700 ring-1 ring-inset ring-red-600/10 bg-red-50'} inline-flex items-center rounded-md  px-2 py-1 text-xs font-medium`}>
-                    {row.status === true ? 'Enabled' : 'Disabled'}
+                    {row?.status === true ? 'Enabled' : 'Disabled'}
                   </div>
                 </td>
                 <td className="py-2 px-6 text-center">
                   <div className="flex item-center justify-center">
                     <div className="w-4 mr-2 transform text-blue-500 hover:text-blue-300 hover:scale-110">
-                    <Link href={{
+                      <Link href={{
                         pathname: 'Customer/edit',
                         query: {
                           id: row?.id,
@@ -154,7 +154,7 @@ const Page = () => {
         </table>
       </div>
       <div className="flex mx-12 items-center justify-between">
-      <div className='rounded-full px-4 py-2 bg-gray-600 text-white'>
+        <div className='rounded-full px-4 py-2 bg-gray-600 text-white'>
           Showing {(data?.pagination.currentPage - 1) * size + 1} to {data?.pagination.totalItems - ((data?.pagination.currentPage - 1) * size) > size ? (data?.pagination.currentPage) * size : data?.pagination.totalItems} of {data?.pagination.totalItems} results
         </div>
         <div className="flex gap-x-2">

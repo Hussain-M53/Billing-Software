@@ -10,32 +10,31 @@ module.exports = (sequelize, DataTypes, Model) => {
         static associate(models) {
             Space.belongsTo(models.Meter, {
                 foreignKey: 'meter_id',
-                as: 'meters'
+                as: 'meter'
             });
-            Space.belongsTo(models.Company, {
-                foreignKey: {
-					name:'CoID',
-					//DataTypes.INTEGER,
-					//defaultValue: 1,
-					allowNull: false
-				},
-                as: 'company',
+            Space.belongsTo(models.Floor, {
+                foreignKey: 'floor_id',
+                as: 'floor'
             });
 
+            Space.hasOne(models.Customer, {
+                foreignKey: 'SpID',
+                as: 'customer'
+            });
         }
     }
 
     Space.init({
-            name: DataTypes.STRING,
-            type : DataTypes.STRING,
-            description: DataTypes.STRING,
-            created_by: DataTypes.INTEGER,
-            updated_by: DataTypes.INTEGER,
-        },
+        name: DataTypes.STRING,
+        type: DataTypes.STRING,
+        description: DataTypes.STRING,
+        created_by: DataTypes.INTEGER,
+        updated_by: DataTypes.INTEGER,
+    },
         {
             sequelize,
-            tableName: 'floors_web',
-            modelName: 'Floor',
+            tableName: 'spaces',
+            modelName: 'Space',
         });
     return Space;
 };

@@ -1,35 +1,35 @@
 const { body, validationResult } = require('express-validator');
-const Floor = require('../../db/models').Floor;
-const Meter = require('../../db/models').Meter;
-const { Op } = require('sequelize');
+const Space = require('../../db/models').Space;
+const { Op } = require('sequelize')
 
-exports.MeterCreateRequest = [
+exports.SpaceCreateRequest = [
     body('name')
         .not().isEmpty().trim().escape()
-        .withMessage('Invalid meter name entered.'),
-    body('history_config_id')
+        .withMessage('Invalid Space name entered.'),
+    body('type')
+        .not().isEmpty().trim().escape()
+        .withMessage('Invalid Space type entered.'),
+    body('floor_id')
         .not().isEmpty()
-        .withMessage('Meter table is not selected'),
-
+        .withMessage('Floor is not selected'),
+    body('meter_id')
+        .not().isEmpty()
+        .withMessage('Meter is not selected'),
     async (req, res, next) => {
-        console.log(req.body)
         const errors = validationResult(req);
         const { name } = req.body;
-        let meter = await Meter.findOne({
+        const space = await Space.findOne({
             where: {
                 [Op.and]: [
                     { name: name },
-
                 ]
             }
         });
-        if (meter) {
+        if (space) {
             return res.status(409).json({ message: 'Duplicate record found, please check.' }).send();
         }
-        if (!errors.isEmpty()){
-        console.log('ERROR!!!!!!!!!!!!!')    
+        if (!errors.isEmpty())
             return res.status(422).json({ errors: errors.array() });
-        }
         else
             next();
     }

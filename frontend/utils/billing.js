@@ -38,6 +38,82 @@ export const fetch_billings = async (token, id, query) => {
     }
 }
 
+export const fetch_billingsByMonth = async (token, id, billing_id) => {
+
+    try {
+        const response = await api.get(`billings/${billing_id}?user_id=${id}&token=${token}`);
+
+        // Status code 200: success
+        if (response.status === 200) {
+            console.log(response.data)
+            return {
+                status: response.status,
+                message: response.data,
+            }
+        }
+    } catch (error) {
+        if (error.response) {
+            // Status code 403: incorrect credentials
+            if (error.response.status === 403 || error.response.status === 401) {
+                console.log(error.response.status, error.response.data.message)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.message
+                }
+            }
+
+            // Other errors
+            return {
+                status: error.response.status,
+                message: error.response.data.msg || 'An error occurred',
+            }
+        }
+        // Network or other errors
+        return {
+            status: 500,
+            message: 'Network Error or Server not responding'
+        };
+    }
+}
+
+export const fetch_billingsByCustomer = async (token, id, billing_id, customer_id) => {
+
+    try {
+        const response = await api.get(`billings/billingWithHistory/${billing_id}?CID_web=${customer_id}&user_id=${id}&token=${token}`);
+
+        // Status code 200: success
+        if (response.status === 200) {
+            console.log(response.data)
+            return {
+                status: response.status,
+                message: response.data,
+            }
+        }
+    } catch (error) {
+        if (error.response) {
+            // Status code 403: incorrect credentials
+            if (error.response.status === 403 || error.response.status === 401) {
+                console.log(error.response.status, error.response.data.message)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.message
+                }
+            }
+
+            // Other errors
+            return {
+                status: error.response.status,
+                message: error.response.data.msg || 'An error occurred',
+            }
+        }
+        // Network or other errors
+        return {
+            status: 500,
+            message: 'Network Error or Server not responding'
+        };
+    }
+}
+
 export const create_billings = async (token, id, user) => {
     try {
         const response = await api.post(`users/?user_id=${id}&token=${token}`,

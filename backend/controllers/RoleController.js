@@ -3,53 +3,62 @@ const User = require('../db/models').User;
 const ResponseType = require('../enums/ResponseType')
 const RoleCollection = require('../resources/collections/RoleCollection');
 const Paging = require('../helpers/Paging')
-const {Op} = require("sequelize");
-const func = require('../middleware/permissions/CommonFunc')
+const { Op } = require("sequelize");
+const func = require('../middleware/permissions/CommonFunc');
+const ActivityLogController = require('./ActivityLogController');
 
 const roleController = {
     async getModules(req, res) {
         let response = null;
 
-        let groups = ['Company', 'Floor', 'Meter', 'Customer', 'User', 'Role', 'Graphs', 'Billing', 'UnitAdjustment'];
+        let groups = ['ActivityLog', 'Floor', 'Meter', 'Customer', 'User', 'Role', 'Graphs', 'Billing', 'UnitAdjustment'];
         let permissionTypes = ['View', 'Create', 'Update', 'Delete', 'Print'];
 
-        response = res.status(201).json({message: 'Registered Modules and Permission Types', groups:groups, permissionTypes:permissionTypes});
-        return response;        
+        response = res.status(201).json({ message: 'Registered Modules and Permission Types', groups: groups, permissionTypes: permissionTypes });
+        return response;
     },
 
     async create(req, res) {
         let response = null;
-        const {name, description, permissions} = req.body;
+        const { name, description, permissions } = req.body;
         const role = await Role.create({
             name: name,
             description: description,
-            permissions:JSON.stringify(permissions),
+            permissions: JSON.stringify(permissions),
             key: name.replace(' ', '_').toLowerCase(),
             created_by: req.query.user_id,
         });
-        response = res.status(201).json({message: 'Role created successfully.', role: role});
+        response = res.status(201).json({ message: 'Role created successfully.', role: role });
         return response;
     },
     async update(req, res) {
         let response = null;
         const id = req.params.id;
-        const {name, description, permissions} = req.body;
+        const { name, description, permissions } = req.body;
 
         const role = await Role.update({
             name: name,
             description: description,
-            permissions:JSON.stringify(permissions),
-            updated_by: req.user.user_id,
-        }, {where: {id: id}});
-        response = res.status(201).json({message: 'Role updated successfully.', role: role});
+            permissions: JSON.stringify(permissions),
+            updated_by: req.params.user_id,
+        }, { where: { id: id } });
+
+        //logging data
+        await ActivityLogController.create(
+            'UPDATE Role',
+            'Role = ' + name + ' is updated',
+            req.user.user_id
+        );
+
+        response = res.status(201).json({ message: 'Role updated successfully.', role: role });
         return response;
     },
     async role(req, res) {
         let role = await Role.findByPk(req.params.id);
         if (role) {
-            return res.status(200).json({role: role});
+            return res.status(200).json({ role: role });
         } else {
-            return res.status(404).json({'message': 'Role not found'});
+            return res.status(404).json({ 'message': 'Role not found' });
         }
     },
     async roles(req, res) {
@@ -60,8 +69,8 @@ const roleController = {
 
         }
         if (responseType === ResponseType.PAGINATED) {
-            const {size, currentPage, search, sortBy, orderBy} = req.query;
-            const {limit, offset} = Paging.getPagination(currentPage, size);
+            const { size, currentPage, search, sortBy, orderBy } = req.query;
+            const { limit, offset } = Paging.getPagination(currentPage, size);
             const condition = {
                 [Op.or]: [
                     {
@@ -91,16 +100,16 @@ const roleController = {
                 .then(async data => {
                     const roles = await RoleCollection(data.rows.filter(item => item.key !== '@super_user'), responseType);
                     const pagination = await Paging.getPagingData(data, currentPage, limit, search);
-                    res.send({roles, pagination});
+                    res.send({ roles, pagination });
                 });
         } else {
             const isSuper = await func.isSuperUser(req.user.user_id);
             // only allow super user role if logged in by super user
-            if (!isSuper){
-//            if (req.user.user_id != 1) {
+            if (!isSuper) {
+                //            if (req.user.user_id != 1) {
                 roles = roles.filter(role => role.key !== '@super_user');
             }
-            return res.status(200).json({roles: await RoleCollection(roles, responseType)})
+            return res.status(200).json({ roles: await RoleCollection(roles, responseType) })
         }
     },
     async destroy(req, res) {
@@ -111,21 +120,20 @@ const roleController = {
             }
         })
         if (users.length > 0) {
-            return res.status(409).json({message: 'This role is associated with some users.'});
+            return res.status(409).json({ message: 'This role is associated with some users.' });
         } else {
 
             // cannot delete super user role-main
-            if (id == 1)
-            {
-                return res.status(409).json({message: 'Unauthorized action'});
+            if (id == 1) {
+                return res.status(409).json({ message: 'Unauthorized action' });
             }
-            else{
+            else {
                 await Role.destroy({
                     where: {
                         id: id
                     }
                 })
-                return res.status(200).json({message: 'Role deleted successfully.'});
+                return res.status(200).json({ message: 'Role deleted successfully.' });
             }
         }
 

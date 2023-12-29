@@ -30,7 +30,10 @@ if (config.use_env_variable) {
     sequelize = new Sequelize(config.database, config.username, config.password, {
         host: 'DESKTOP-G2AGSEQ',
         port: 1433,
-        dialect: 'mssql'
+        dialect: 'mssql',
+        dialectOptions: {
+            connectTimeout: 60000 // Timeout in milliseconds (this sets it to 30 seconds)
+        }
     });
 }
 

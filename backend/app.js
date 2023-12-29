@@ -5,12 +5,10 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const { getToken } = require('./controllers/UserController')
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var rolesRouter = require('./routes/roles');
-var companyRouter = require('./routes/companies');
 var billingRouter = require('./routes/billings');
 var permissionRouter = require('./routes/permissions');
 var floorRouter = require('./routes/floors');
@@ -20,6 +18,8 @@ var customerRouter = require('./routes/customers');
 var historyConfig = require('./routes/history_configs');
 var dashboard = require('./routes/dashboard');
 var chartRouter = require('./routes/charts');
+var spaceRouter = require('./routes/spaces');
+var activityLogRouter = require('./routes/activity_logs');
 
 const app = express();
 app.use(cors())
@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/roles', rolesRouter);
-app.use('/api/companies', companyRouter);
+app.use('/api/spaces', spaceRouter);
 app.use('/api/charts', chartRouter);
 app.use('/api/permissions', permissionRouter);
 app.use('/api/floors', floorRouter);
@@ -45,6 +45,7 @@ app.use('/api/customers', customerRouter);
 app.use('/api/dashboard', dashboard);
 app.use('/api/unitAdjustments', unitAdjusmentRouter);
 app.use('/api/billings', billingRouter);
+app.use('/api/logs', activityLogRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

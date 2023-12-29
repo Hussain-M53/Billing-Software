@@ -54,7 +54,7 @@ const Page = () => {
       alert(data?.message);
     }
   }
-  
+
   if (isAuthorizing) {
     return (
       <Authorizing />
@@ -95,7 +95,6 @@ const Page = () => {
           <thead>
             <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
               <th className="py-3 px-6 text-left">Name</th>
-              <th className="py-3 px-6 text-left">Floor</th>
               <th className="py-3 px-6 text-center">Meter Table</th>
               <th className="py-3 px-6 text-center">Status</th>
               <th className="py-3 px-6 text-center">Edit</th>
@@ -109,11 +108,6 @@ const Page = () => {
                   {/* User name */}
                   <div className="flex items-center">
                     <span className="font-medium">{row.name}</span>
-                  </div>
-                </td>
-                <td className="py-3 px-6 text-left">
-                  <div className="flex items-center">
-                    <span>{row.floor.name}</span>
                   </div>
                 </td>
                 <td className="py-3 px-6 text-center">

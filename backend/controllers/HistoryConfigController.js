@@ -14,6 +14,7 @@ module.exports = {
                 attributes: ['history_config_id'],
                 raw: true
             }).then(meters => meters.map(meter => meter.history_config_id));
+            
             historyConfig = await HistoryConfig.findAll(
                 {
                     where: {
@@ -30,6 +31,7 @@ module.exports = {
                 table: item.TABLE_NAME.toLowerCase()
             }
         })
+        console.log("all free meters", historyConfig)
         return res.status(200).json({'meter_tables': historyConfig})
     }
 }

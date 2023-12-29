@@ -14,7 +14,7 @@ interface Permission {
 }
 
 const Page = (params: any) => {
-    const groups = ['Floor', 'Meter', 'Customer', 'Space', 'Unit Adjustment', 'User', 'Role', 'Billing'];
+    const groups = ['Floor', 'Meter', 'Customer', 'Space', 'UnitAdjustment', 'User', 'Role', 'Billing','ActivityLog'];
     const permissions = ['View', 'Create', 'Update', 'Delete', 'Print'];
     const { user } = useContext(AuthContext);
     const router = useRouter();
@@ -86,7 +86,7 @@ const Page = (params: any) => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        console.log(role);
+        console.log('all permissions : ',role)
         const response = await update_role(user.token, user.user.id, role);
         if (response?.status == 201) {
             alert(response?.message?.message);

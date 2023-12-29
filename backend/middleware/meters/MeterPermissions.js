@@ -3,10 +3,12 @@ const ViewMeter = async function (req, res, next) {
     let is_assigned = await func.isAssigned(req, 'view_meter');
     return func.sendResponse(is_assigned, res, next)
 }
+
 const CreateMeter = async function (req, res, next) {
     let is_assigned = await func.isAssigned(req, 'create_meter');
     return func.sendResponse(is_assigned, res, next)
 }
+
 const UpdateMeter = async function (req, res, next) {
     let is_assigned = await func.isAssigned(req, 'update_meter');
     return func.sendResponse(is_assigned, res, next)

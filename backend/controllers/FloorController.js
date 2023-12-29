@@ -14,7 +14,6 @@ module.exports = {
         const floor = await Floor.create({
             name: name,
             description: description,
-            CoID: 1, //need to remove this functionality
             created_by: req.query.user_id,
         });
 
@@ -90,7 +89,6 @@ module.exports = {
         floor.set({
             name: name,
             description: description,
-            CoID: 1,
             updated_by: req.query.user_id,
         })
         await floor.save()

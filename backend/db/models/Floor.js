@@ -8,29 +8,19 @@ module.exports = (sequelize, DataTypes, Model) => {
          * The `models/index` file will call this method automatically.
          */
         static associate(models) {
-            Floor.hasMany(models.Meter, {
+            Floor.hasMany(models.Space, {
                 foreignKey: 'floor_id',
-                as: 'meters'
+                as: 'space'
             });
-            Floor.belongsTo(models.Company, {
-                foreignKey: {
-					name:'CoID',
-					//DataTypes.INTEGER,
-					//defaultValue: 1,
-					allowNull: false
-				},
-                as: 'company',
-            });
-
         }
     }
 
     Floor.init({
-            name: DataTypes.STRING,
-            description: DataTypes.STRING,
-            created_by: DataTypes.INTEGER,
-            updated_by: DataTypes.INTEGER,
-        },
+        name: DataTypes.STRING,
+        description: DataTypes.STRING,
+        created_by: DataTypes.INTEGER,
+        updated_by: DataTypes.INTEGER,
+    },
         {
             sequelize,
             tableName: 'floors_web',
