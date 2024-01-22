@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
 // const {Op} = require("sequelize");
-const User = require('../../db/models').User;
+const User = require('../../models').User;
 exports.userCreateRequest = [
     body('password')
         .isLength({ min: 6 })

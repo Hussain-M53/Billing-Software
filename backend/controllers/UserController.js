@@ -1,4 +1,4 @@
-const db = require("../db/models");
+const db = require("../models/index.js");
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const UserRepository = require('../repositories/UserRepository.js')
@@ -64,8 +64,7 @@ module.exports = {
         let authUser = req.user;
         authUser = await User.findOne({
             where: {
-                // username: authUser.username,
-                id: req.user.user_id,
+                id: req.query.user_id,
             }
         })
         if (password != null && password !=='') {
@@ -92,14 +91,14 @@ module.exports = {
                 updated_by: req.user.user_id,
 
             })
-            return res.status(200).json({message : "User updated successfully", user: await userResource(user)})
+            return res.status(201).json({message : "User updated successfully", user: await userResource(user)})
         } else {
             return res.status(404).json({'message': 'User not found'})
         }
     },
     async profileUpdate(req, res) {
         let {name, username, email} = req.body;
-        let authUser = req.user;
+        let authUser = req.query;
         authUser = await User.findByPk(authUser.user_id)
         if (authUser) {
             authUser = await (new UserRepository(authUser)).update({
@@ -114,7 +113,6 @@ module.exports = {
     },
     async profile(req, res) {
         let user = req.user;
-        //return res.status(200).send(req.user);
         user = await User.findOne({
             where: {
                 username: user.username
@@ -207,25 +205,20 @@ module.exports = {
         let id = req.params.id;
         let response = null;
 
-        // console.log("id.......",id);
-        // console.log("login id........",req.user.user_id);
-
         if (id == req.query.user_id) // cannot delete logged in user
         {
-            //console.log("same id.................",id);
-            response= res.status(409).json({'message': 'Cannot delete logged in user'});
+            response= res.status(409).json({message: 'Cannot delete logged in user'});
         }
         else if (id == '1') // cannot delete super user - main
         {
-            //console.log("id.................",id);
-            response= res.status(409).json({'message': 'Unauthorized action'});
+            response= res.status(409).json({message: 'Unauthorized action'});
         }else{
             User.destroy({
                 where: {
                     id: id
                 }
             })
-            response = res.status(200).json({'message': 'User deleted successfully.'});
+            response = res.status(200).json({message: 'User deleted successfully.'});
         }
         return response;
 
@@ -237,9 +230,9 @@ const getToken = (user, email) => {
     return jwt.sign(
         {user_id: user.id, email, username, password},
         process.env.TOKEN_KEY,
-        // {
-        //     expiresIn: "10h",
-        // }
+        {
+            expiresIn: "10h",
+        }
     );
 }
 

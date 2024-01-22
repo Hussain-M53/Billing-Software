@@ -2,46 +2,40 @@
 
 import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
 import Link from "next/link";
-import { fetch_roles, create_user } from "@/utils/user";
 import { AuthContext } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
-import Saving from "@/app/_component/loading/saving";
+import { fetch_space, update_customer, fetch_customer } from "@/utils/customer";
 import Fetching from "@/app/_component/loading/fetching";
-import { fetch_customer } from "@/utils/customer";
 
-
-const Page = (params : any) => {
+const Page = (params: any) => {
 
     const { user } = useContext(AuthContext);
-    const [data, setData] = useState<any>({});
+    const [data, setData] = useState({} as any);
     const router = useRouter();
-    const [save, setSave] = useState(false);
-    const [meters, setMeters] = useState([] as any);
     const [isLoadingData, setIsLoadingData] = useState(true);
-
+    const [spaces, setSpaces] = useState([] as any);
 
     useEffect(() => {
         const fetch_data = async () => {
             const data = await fetch_customer(user.token, user.user.id, params.searchParams.id);
             if (data?.status == 200) {
-                console.log(data)
-                setData(data?.message.customer);
+                setData({
+                    ...data?.message.customer,
+                    space: {
+                        id : data?.message.customer.space.id,
+                        name : data?.message.customer.space.name, 
+                    },
+                });
+
             } else {
                 alert(data?.message);
-                router.push('/Customer');
+                router.push('/Dashboard');
             }
-            setIsLoadingData(false);
         }
-
-        fetch_data();
-    }, [])
-
-    useEffect(() => {
-        const fetch_data = async () => {
-            const data = await fetch_roles(user.token, user.user.id);
+        const fetch = async () => {
+            const data = await fetch_space(user.token, user.user.id);
             if (data?.status == 200) {
-                console.log(data)
-                setData(data?.message);
+                setSpaces(data?.message.spaces);
             } else {
                 alert(data?.message);
                 router.push('/Dashboard');
@@ -49,29 +43,31 @@ const Page = (params : any) => {
         }
 
         fetch_data();
+        fetch();
+        setIsLoadingData(false);
     }, [])
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        setSave(true);
-        const create = async () => {
-            const data = await create_user(user.token, user.user.id);
-            if (data!.status == 201) {
-                alert(data?.message?.message);
-                router.push('/User');
+        const update = async () => {
+            const response = await update_customer(user.token, user.user.id, data);
+            if (response?.status == 201) {
+                alert(response?.message?.message);
+                router.push('/Customer');
             } else {
-                alert(data?.message);
+                alert(response?.message);
             }
         }
-        create();
+        update();
     }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setData((prevData : any) => ({
+        setData((prevData: any) => ({
             ...prevData,
             [e.target.name]: e.target.value
         }));
     };
+
 
     if (isLoadingData) {
         return (
@@ -84,16 +80,17 @@ const Page = (params : any) => {
             <div className="w-full mx-auto border-b border-gray-900/10 pb-8 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="CName" className="block text-sm font-medium leading-6 text-gray-900">
-                        Full Name
+                        Full Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
                             type="text"
                             name="CName"
                             id="CName"
-                            autoComplete="CName"
-                            placeholder="Enter customer name"
+                            defaultValue={data?.CName}
+                            autoComplete="name"
                             onChange={(e) => handleChange(e)}
+                            placeholder="Enter customer name"
                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
@@ -101,16 +98,17 @@ const Page = (params : any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="Code" className="block text-sm font-medium leading-6 text-gray-900">
-                        Code
+                        Code<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
                             type="text"
                             name="Code"
                             id="Code"
+                            defaultValue={data?.Code}
                             autoComplete="Code"
-                            placeholder="Enter customer code"
                             onChange={(e) => handleChange(e)}
+                            placeholder="Enter customer code"
                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
@@ -125,7 +123,8 @@ const Page = (params : any) => {
                             id="Email"
                             name="Email"
                             type="email"
-                            autoComplete="Email"
+                            autoComplete="email"
+                            defaultValue={data?.Email}
                             placeholder="Enter your email"
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -143,6 +142,7 @@ const Page = (params : any) => {
                             name="address"
                             id="address"
                             autoComplete="address"
+                            defaultValue={data?.address}
                             placeholder="Enter your address"
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
@@ -159,43 +159,47 @@ const Page = (params : any) => {
                             type="text"
                             name="contact_person"
                             id="contact_person"
+                            defaultValue={data?.ContactPerson}
+                            autoComplete="contact_person"
                             onChange={(e) => handleChange(e)}
-                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
                 </div>
 
                 <div className="sm:col-span-3">
                     <label htmlFor="mobile" className="block text-sm font-medium leading-6 text-gray-900">
-                        Mobile Number
+                        Contact Number<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
-                            type="text"
+                            type="number"
+                            min={0}
                             name="mobile"
                             id="mobile"
-                            autoComplete="number"
+                            autoComplete="mobile"
+                            defaultValue={data?.MobNo}
                             onChange={(e) => handleChange(e)}
-                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         />
                     </div>
                 </div>
 
                 <div className="sm:col-span-3">
-                    <label htmlFor="meter" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Meter
+                    <label htmlFor="space" className="block text-sm font-medium leading-6 text-gray-900">
+                        Select Space<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select
-                            id="meter"
-                            name="meter"
-                            autoComplete="meter"
+                            id="space"
+                            name="space"
+                            autoComplete="space"
+                            defaultValue={data?.space?.name}
                             onChange={(e) => handleChange(e)}
                             className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                            <option selected>{ }</option>
-                            {meters?.map((meter: any, idx: number) => (
-                                <option key={idx} value={meter?.id}>{meter?.name}</option>
+                            {spaces?.map((space: any, idx: number) => (
+                                <option key={idx} value={space.id}>{space.name}</option>
                             ))}
                         </select>
                     </div>
@@ -203,7 +207,7 @@ const Page = (params : any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Status
+                        Select Status<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select
@@ -214,8 +218,8 @@ const Page = (params : any) => {
                             onChange={(e) => handleChange(e)}
                             className="pl-2 block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6"
                         >
-                            <option>Enabled</option>
-                            <option>Disabled</option>
+                            <option value={1}>Enabled</option>
+                            <option value={0}>Disabled</option>
                         </select>
                     </div>
                 </div>
@@ -229,9 +233,8 @@ const Page = (params : any) => {
                 <button
                     className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
-                    {(save) ? <Saving /> :
-                        "Save"
-                    }    </button>
+                    Save
+                </button>
             </div>
         </form>
     )

@@ -56,7 +56,7 @@ const Page = (params: any) => {
     }
 
     return (
-        <div className="container max-h-screen">
+        <div className="w-full max-h-screen">
             <div className="flex justify-start items-center mx-auto px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
                 <Link href={'/Billing'}>
                     <ArrowLeftCircleIcon width={40} height={40} />

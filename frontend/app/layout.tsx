@@ -5,7 +5,7 @@ import { AuthProvider } from './_context/AuthContext'
 // const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Billing Sofwtare - DigiLabs',
+  title: 'Billing Software - DigiLabs',
   description: 'Created By DigiLabs.Co',
 }
 

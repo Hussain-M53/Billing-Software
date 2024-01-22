@@ -69,7 +69,7 @@ const Page = () => {
 
 
   return (
-    <div className="container max-h-screen">
+    <div className="w-full max-h-screen">
       <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Meters</h1>
         <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">

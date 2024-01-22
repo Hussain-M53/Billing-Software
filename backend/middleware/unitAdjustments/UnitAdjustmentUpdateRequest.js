@@ -30,9 +30,6 @@ exports.UnitAdjustmentUpdateRequest = [
         .withMessage('Invalid final units ton-hour')
         .custom((finalUnitsTonHour) => finalUnitsTonHour >= 0)
         .withMessage('Final Units value must not be less than zero'),
-    body('CoID')
-        .not().isEmpty()
-        .withMessage('Invalid Company'),
     async (req, res, next) => {
         const errors = validationResult(req);
         // const {docNo} = req.body;

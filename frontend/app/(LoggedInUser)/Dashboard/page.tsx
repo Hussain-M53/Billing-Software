@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { fetch_meter, fetch_monthlyData } from "@/utils/dashboard";
 import { AuthContext } from "@/app/_context/AuthContext";
+import Fetching from "@/app/_component/loading/fetching";
 
 const HomePage = () => {
   const router = useRouter();
@@ -16,7 +17,7 @@ const HomePage = () => {
   const [meters, setMeters] = useState([] as any);
   const [data, setData] = useState({} as any);
   const [chartData, setChartData] = useState([] as any);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
 
   const userNavigation = [
@@ -36,8 +37,9 @@ const HomePage = () => {
     const fetch_meters = async () => {
       const data = await fetch_meter(user.token, user.user.id);
       if (data?.status == 200) {
-        console.log(data)
         setMeters(data?.message.meters);
+        setIsLoading(false);
+
       } else {
         alert(data?.message);
         router.push('/Dashboard');
@@ -49,18 +51,24 @@ const HomePage = () => {
   const getMonthlyData = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-    // console.log(data);
+   
     const response = await fetch_monthlyData(user.token, user.user.id, data);
-    // console.log(response?.message?.chartData)
+   
     setChartData(response?.message.chartData)
     setIsLoading(false);
-    
+
   }
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setData({ ...data, [name]: value });
   }
+
+  if (isLoading) {
+    return (
+        <Fetching />
+    )
+}
 
   return (
     <div className="h-screen w-full">
@@ -113,10 +121,11 @@ const HomePage = () => {
         <div className="m-4 flex justify-evenly items-center">
           <div className="w-64">
             <label htmlFor="meter" className="block text-sm font-medium leading-6 text-gray-900">
-              Select Meter<span className="text-red-600">*</span>
+              Select Meters<span className="text-red-600">*</span>
             </label>
             <div className="mt-2">
               <select
+
                 id="meter"
                 name="meter"
                 autoComplete="meter"

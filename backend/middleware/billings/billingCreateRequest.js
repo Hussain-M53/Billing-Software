@@ -1,5 +1,5 @@
 const {body, validationResult} = require('express-validator');
-const Billing = require('../../db/models').Billing;
+const Billing = require('../../models').Billing;
 const {Op} = require('sequelize')
 exports.BillingCreateRequest = [
     body('DocNo')

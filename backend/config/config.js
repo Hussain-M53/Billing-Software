@@ -18,6 +18,7 @@ module.exports = {
         "dialectOptions": {
           "port": process.env.MSSQL_PORT,
           "connectTimeout": "60000", // Increase the connection timeout to 60 seconds
+          "requestTimeout": "300000",
           "options": {
             "instanceName": process.env.MSSQL_INSTANCENAME,
             // "useUTC": false, //for reading from database

@@ -50,8 +50,10 @@ const Page = () => {
   const deleteFloor = async (e: FormEvent, floor_id: string) => {
     e.preventDefault();
     if (confirm("Are you sure, you want to delete?")) {
+      setIsLoadingData(true);
       const data = await delete_floor(user.token, user.user.id, floor_id);
-      alert(data?.message?.message);
+      alert(data?.message);
+      setIsLoadingData(false);
     }
   }
 
@@ -68,7 +70,7 @@ const Page = () => {
     )
   }
   return (
-    <div className="container">
+    <div className="min-h-screen w-full">
       <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Floors</h1>
         <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">

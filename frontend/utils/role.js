@@ -1,5 +1,7 @@
 import api from './api/axios'
 
+
+//---------------------------------------------------checked------------------------------------------------------------
 export const fetch_roles = async (token, id, query) => {
 
     try {
@@ -16,11 +18,17 @@ export const fetch_roles = async (token, id, query) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors[0].msg)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors[0].msg
                 }
             }
 
@@ -38,6 +46,8 @@ export const fetch_roles = async (token, id, query) => {
     }
 }
 
+
+//---------------------------------------------------checked------------------------------------------------------------
 export const fetch_role = async (token, id, id_to_fetch) => {
 
     try {
@@ -54,11 +64,17 @@ export const fetch_role = async (token, id, id_to_fetch) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors[0].msg)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors[0].msg
                 }
             }
 
@@ -76,6 +92,8 @@ export const fetch_role = async (token, id, id_to_fetch) => {
     }
 }
 
+
+//---------------------------------------------------checked------------------------------------------------------------
 export const create_role = async (token, id, query) => {
 
     try {
@@ -100,11 +118,17 @@ export const create_role = async (token, id, query) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors[0].msg)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors[0].msg
                 }
             }
 
@@ -122,8 +146,10 @@ export const create_role = async (token, id, query) => {
     }
 }
 
+
+//---------------------------------------------------checked------------------------------------------------------------
 export const update_role = async (token, id, query) => {
-console.log(query)
+    console.log(query)
     try {
         const response = await api.put(`roles/${query.id}?user_id=${id}`, {
             token: token,
@@ -137,7 +163,6 @@ console.log(query)
         });
         // Status code 201: success
         if (response.status === 201) {
-            console.log(response.data)
             return {
                 status: response.status,
                 message: response.data,
@@ -146,18 +171,23 @@ console.log(query)
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -168,33 +198,39 @@ console.log(query)
     }
 }
 
+
+//---------------------------------------------------checked------------------------------------------------------------
 export const delete_role = async (token, id, id_to_delete) => {
 
     try {
         const response = await api.delete(`roles/${id_to_delete}?user_id=${id}&token=${token}`);
         // Status code 200: success
         if (response.status === 200) {
-            console.log(response.data)
             return {
                 status: response.status,
-                message: response.data,
+                message: response.data.message,
             }
         }
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
             if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
-                console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors

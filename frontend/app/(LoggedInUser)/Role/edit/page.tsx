@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AuthContext } from "@/app/_context/AuthContext";
 import { update_role, fetch_role } from '../../../../utils/role'
 import { useRouter } from 'next/navigation'
+import Fetching from "@/app/_component/loading/fetching";
 
 interface Permission {
     name: string;
@@ -14,7 +15,7 @@ interface Permission {
 }
 
 const Page = (params: any) => {
-    const groups = ['Floor', 'Meter', 'Customer', 'Space', 'UnitAdjustment', 'User', 'Role', 'Billing','ActivityLog'];
+    const groups = ['Floor', 'Meter', 'Customer', 'Space', 'UnitAdjustment', 'User', 'Role', 'Billing', 'ActivityLog'];
     const permissions = ['View', 'Create', 'Update', 'Delete', 'Print'];
     const { user } = useContext(AuthContext);
     const router = useRouter();
@@ -46,7 +47,6 @@ const Page = (params: any) => {
         const fetch_data = async () => {
             const data = await fetch_role(user.token, user.user.id, params.searchParams.id);
             if (data?.status == 200) {
-                console.log(data)
                 setRole(prevData => ({
                     ...prevData,
                     name: data.message.role.name,
@@ -86,7 +86,6 @@ const Page = (params: any) => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
-        console.log('all permissions : ',role)
         const response = await update_role(user.token, user.user.id, role);
         if (response?.status == 201) {
             alert(response?.message?.message);
@@ -96,25 +95,18 @@ const Page = (params: any) => {
         }
     }
 
-    if (isLoadingData) return (
-        <div className='h-screen mx-auto justify-center items-center flex'>
-            <div>
-                <svg className="animate-spin ml-1 mr-3 h-10 w-10 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.21.896 4.21 2.344 5.648l2.657-2.357z"></path>
-                </svg>
-            </div>
-            <div>
-                loading data...
-            </div>
-        </div>);
+    if (isLoadingData) {
+        return (
+            <Fetching />
+        )
+    }
 
     return (
         <form onSubmit={handleSubmit} className='max-h-screen m-auto w-3/5 p-6 bg-gray-100 rounded-md'>
             <div className="w-full mx-auto border-b border-gray-900/10 pb-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Name
+                        Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-1">
                         <input

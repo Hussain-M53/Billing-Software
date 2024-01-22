@@ -1,5 +1,5 @@
 const {body, validationResult} = require('express-validator');
-const Floor = require('../../db/models').Floor;
+const Floor = require('../../models').Floor;
 const {Op}=require('sequelize')
 exports.FloorUpdateRequest = [
     body('name')

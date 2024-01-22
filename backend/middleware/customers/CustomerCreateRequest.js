@@ -1,6 +1,6 @@
 const {body, validationResult} = require('express-validator');
 const {Op} = require("sequelize");
-const Customer = require('../../db/models').Customer;
+const Customer = require('../../models').Customer;
 exports.CustomerCreateRequest = [
     body('CName')
         .not().isEmpty().trim().escape()
@@ -8,28 +8,22 @@ exports.CustomerCreateRequest = [
     body('Code')
         .not().isEmpty().trim().escape()
         .withMessage('Invalid code'),
-    body('MeterId')
+    body('spaceId')
         .not().isEmpty()
-        .withMessage('Meter is not selected'),
-    // body('CoID')
-    //     .not().isEmpty()
-    //     .withMessage('Invalid Company'),
-    // body('contact')
-    //     .not().isEmpty()
-    //     .withMessage('Invalid contact entered.'),
-    body('address')
-        .not().isEmpty().trim().escape()
-        .withMessage('Enter a valid address'),
+        .withMessage('space is not selected'),
+    // body('address')
+    //     .not().isEmpty().trim().escape()
+    //     .withMessage('Enter a valid address'),
     body('mobile')
         .not().isEmpty().trim().escape()
-        .isMobilePhone()
-        .withMessage('Enter a valid mobile number.'),
-    body('contact_person')
-        .not().isEmpty().trim().escape()
-        .withMessage('Enter a valid contact person name.'),
+        .isMobilePhone(),
+    //     .withMessage('Enter a valid mobile number.'),
+    // body('contact_person')
+    //     .not().isEmpty().trim().escape()
+    //     .withMessage('Enter a valid contact person name.'),
     async (req, res, next) => {
         const errors = validationResult(req);
-        const {CName, status, enable_date, disable_date, MeterId} = req.body;
+        const {CName, status, enable_date, disable_date, spaceId} = req.body;
         const oldCustomer = await Customer.findOne({
             where: {
                 CName: CName
@@ -38,26 +32,26 @@ exports.CustomerCreateRequest = [
         if (oldCustomer)
             return res.status(409).json({message: 'Duplicate record found, please check.'}).send();
         let errs = errors.array();
-        if (status) {
-            if (enable_date == null || enable_date == '') {
-                errs.push({
-                    msg: 'Enable date is not selected',
-                    param: 'enable_date'
-                })
-            }
-        } else {
-            if (disable_date == null || disable_date == '') {
-                errs.push({
-                    msg: 'Disable date is not selected',
-                    param: 'disable_date'
-                })
-            }
-        }
+        // if (status) {
+        //     if (enable_date == null || enable_date == '') {
+        //         errs.push({
+        //             msg: 'Enable date is not selected',
+        //             param: 'enable_date'
+        //         })
+        //     }
+        // } else {
+        //     if (disable_date == null || disable_date == '') {
+        //         errs.push({
+        //             msg: 'Disable date is not selected',
+        //             param: 'disable_date'
+        //         })
+        //     }
+        // }
 
-        if (MeterId == null) {
+        if (spaceId == null) {
             errs.push({
-                msg: 'No meter is selected',
-                param: 'MeterId'
+                msg: 'No space is selected',
+                param: 'space'
             })
         }
         if (errs.length)

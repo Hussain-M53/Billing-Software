@@ -1,4 +1,4 @@
-const db = require('../../db/models');
+const db = require('../../models');
 const User = db.User;
 const Meter = db.Meter;
 

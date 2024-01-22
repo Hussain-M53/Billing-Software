@@ -1,4 +1,4 @@
-const db = require("../db/models");
+const db = require("../models");
 const ActivityLogCollection = require("../resources/collections/ActivityLogCollection");
 const ActivityLog = db.ActivityLog;
 const ResponseType = require('../enums/ResponseType')

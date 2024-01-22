@@ -5,7 +5,7 @@ const path = require('path');
 const Sequelize = require('sequelize');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
-const config = require(__dirname + '/../../config/config.js')[env];
+const config = require(__dirname + '/../config/config.js')[env];
 const db = {};
 const moment = require('moment');
 
@@ -14,10 +14,6 @@ const moment = require('moment');
 ///////////// SOLUTION:///////////////
 // Override timezone formatting
 Sequelize.DATE.prototype._stringify = function _stringify(date, options) {
-    //date = this._applyTimezone(date, options);
-
-    //console.log('\n\n\n date',date);
-
     // Z here means current timezone, _not_ UTC
     // return date.format('YYYY-MM-DD HH:mm:ss.SSS Z');
     return moment(date).format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -28,12 +24,12 @@ if (config.use_env_variable) {
     sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
     sequelize = new Sequelize(config.database, config.username, config.password, {
-        host: 'DESKTOP-G2AGSEQ',
-        port: 1433,
-        dialect: 'mssql',
-        dialectOptions: {
-            connectTimeout: 60000 // Timeout in milliseconds (this sets it to 30 seconds)
-        }
+        "host": "DESKTOP-G2AGSEQ",
+        "port": 1433,
+        "dialect": "mssql",
+        "dialectOptions": {
+            options: { "requestTimeout": 300000 }
+        },
     });
 }
 

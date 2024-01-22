@@ -1,7 +1,8 @@
-const db = require("../db/models");
+const db = require("../models");
 const Meter = db.Meter;
 const HistoryConfig = db.HistoryConfig;
 const Space = db.Space;
+const Customer = db.Customer;
 const MeterResource = require('../resources/MeterResource')
 const MeterCollection = require('../resources/collections/MeterCollection')
 const Paging = require('../helpers/Paging')
@@ -12,7 +13,6 @@ const path = require('path');
 const fs = require("fs");
 const PDFDocument = require("pdfkit-table");
 const moment = require('moment');
-const { count } = require("console");
 
 module.exports = {
     async create(req, res) {
@@ -85,7 +85,7 @@ module.exports = {
             });
             // get compact results for combo
             meters = await MeterCollection(meters, ResponseType.COMPACT);
-            return res.status(200).json({ meters })
+            return res.status(200).json({ meters: meters })
         }
 
     },
@@ -108,7 +108,7 @@ module.exports = {
             updated_by: req.query.user_id,
         })
         await meter.save()
-        return res.status(200).json({ meter: await MeterResource(meter) });
+        return res.status(201).json({ message: "meter updated successfully", meter: await MeterResource(meter) });
     },
     async destroy(req, res) {
         const id = req.params.id;
@@ -167,15 +167,8 @@ module.exports = {
         let { site_id, building_id, floor_id, customer_id, start_date, end_date } = req.query;
         let records = await module.exports.extractRecords(site_id, building_id, floor_id, customer_id, start_date, end_date);
 
-        /*         console.log('\n\n\n');
-                console.log('records.....', records);
-                console.log('\n\n\n');
-         */
         // sort records by meter description (numeric way)
         records.sort((a, b) => a.meter.description - b.meter.description);
-
-        // sort records by alphabets 01,100,21,31,a,b...
-        //records.sort((a, b) =>  a.meter.description.localeCompare(b.meter.description));
 
         const workbook = new excelJS.Workbook();  // Create a new workbook
         const worksheet = workbook.addWorksheet("Meter Consumption Report"); // New Worksheet
@@ -205,7 +198,6 @@ module.exports = {
         worksheet.getCell('A5').value = ''
         worksheet.getCell('B5').value = ''
         worksheet.getCell('A5').font = { bold: true };
-        //   worksheet.getCell('B5').border = {bottom: thinBorder}
 
         worksheet.getRow(7).values = ['S.No', 'Name Of Tenant', 'Site', 'Building', 'Floor', 'Office No',
             'Reading Start (A)', 'Reading End (B)', 'Difference X=(B-A)', 'New Reading Start (C)', 'New Reading End (D)',
@@ -325,8 +317,6 @@ module.exports = {
 
         });
 
-        // let file = __dirname + `../public/files/consumption_report.xlsx`;
-        //let file = fs.createWriteStream("./public/files/consumption_report.xlsx`")
         try {
             await workbook.xlsx.writeFile('./public/files/consumption_report.xlsx')
                 .then(() => {
@@ -346,12 +336,13 @@ module.exports = {
     },
     async exportAsPdf(req, res) {
         if (!fs.existsSync('./public/files')) {
-            await fs.mkdirSync('./public/files', { recursive: true });
+            fs.mkdirSync('./public/files', { recursive: true });
         }
         let { site_id, building_id, floor_id, customer_id, start_date, end_date } = req.query;
-        let records = await module.exports.extractRecords(site_id, building_id, floor_id, customer_id, start_date, end_date);
-        start_date = moment.unix(start_date / 1000).format('DD-MMM-yyyy');
-        end_date = moment.unix(end_date / 1000).format('DD-MMM-yyyy')
+        let records = await module.exports.extractRecords(site_id, building_id, floor_id, customer_id =-1, start_date, end_date);
+        console.log(records);
+        start_date = moment(start_date).format('DD-MMM-yyyy');
+        end_date = moment(end_date).format('DD-MMM-yyyy')
 
         let data = [];
         let allTotal = 0;
@@ -378,7 +369,7 @@ module.exports = {
             let total = x + y;
             allTotal = allTotal + total;
             data.push([
-                item.customer?.name,
+                item.customer?.CName,
                 item.building?.name,
                 item.floor?.name,
                 item.meter?.office_number,
@@ -422,7 +413,6 @@ module.exports = {
         return res.send({ path: 'files/document.pdf' });
     },
 
-    //get meters for tagging
     async getMetersIdsForTagging() {
         let spaces = await Space.findAll();
         let meter_ids = [];
@@ -452,27 +442,30 @@ module.exports = {
         }).then(meters => meters.map(meter => meter.id));
     }
     ,
+    async getMeterIdsByCustomer(customer_id) {
 
-    async getMeterIdsBySpace(space_id) {
-        return await CustomerMeter.findAll({
-            where: {
-                customer_id: customer_id
-            },
-            attributes: ['meter_id'],
-            raw: true
-        }).then(meters => meters.map(meter => meter.meter_id));
+        return await Customer.findByPk(
+            customer_id
+        ).then(async (customer) => {
+            return await Space.findByPk(
+                customer.SpID
+            ).then(async (space) => {
+                return await Meter.findByPk(
+                    space.meter_id
+                )
+            })
+        });
     }
     ,
     getMeterIds: async function () {
-        return await CustomerMeter.findAll({
-            attributes: ['meter_id'],
+        return await Meter.findAll({
+            attributes: ['id'],
             raw: true,
-        }).then(meters => meters.map(meter => meter.meter_id));
+        }).then(meters => meters.map(meter => meter.id));
     }
     ,
     getMeterIdsByMeters: async function (meter_ids) {
         return await Meter.findAll({
-            // attributes: ['id'],
             raw: true,
             where: {
                 id: { [Op.in]: meter_ids },
@@ -481,15 +474,15 @@ module.exports = {
     }
     ,
     getMeterIdsByFloor: async function (floor_id) {
-        return await Meter.findAll({
-            attributes: ['id'],
+        return await Space.findAll({
+            attributes: ['meter_id'],
             raw: true,
             where: { status: true, floor_id: floor_id },
             order: [['id', 'asc']]
         }).then(ids => ids.map(item => item.id));
     }
     ,
-    extractRecords: async function (site_id, building_id, floor_id, customer_id, start_date, end_date) {
+    extractRecords: async function (site_id = -1, building_id = -1, floor_id = -1, customer_id = -1, start_date, end_date) {
         if (!fs.existsSync('./public/files')) {
             await fs.mkdirSync('./public/files', { recursive: true });
         }
@@ -500,18 +493,22 @@ module.exports = {
         } else if (site_id != -1 && building_id == -1 && floor_id == -1 && customer_id == -1) {//fetch site meters
             meter_ids = await module.exports.getMeterIdsBySite(site_id);
             meter_ids = await module.exports.getMeterIdsByMeters(meter_ids)
-        } else if (site_id != -1 && building_id != -1 && floor_id == -1 && customer_id == -1) {//fetch building meters
+        } else if (site_id == -1 && building_id != -1 && floor_id == -1 && customer_id == -1) {//fetch building meters
             meter_ids = await module.exports.getMeterIdsByBuilding(building_id);
             meter_ids = await module.exports.getMeterIdsByMeters(meter_ids)
-        } else if (site_id != -1 && building_id != -1 && floor_id != -1 && customer_id == -1) {//fetch floor meters
+        } else if (site_id == -1 && building_id == -1 && floor_id != -1 && customer_id == -1) {//fetch floor meters
             meter_ids = await module.exports.getMeterIdsByFloor(floor_id);
             meter_ids = await module.exports.getMeterIdsByMeters(meter_ids)
-        } else if (site_id != -1 && building_id != -1 && customer_id != -1) {//fetch customer meters
+        } else if (site_id == -1 && building_id == -1 && customer_id != -1) {//fetch customer meters
             meter_ids = await module.exports.getMeterIdsByCustomer(customer_id);
-            meter_ids = await module.exports.getMeterIdsByMeters(meter_ids)
+            // meter_ids = await module.exports.getMeterIdsByMeters(meter_ids);
+            console.log("meter ids : ", meter_ids)
         }
         let config_ids = await module.exports.getConfigIds(meter_ids);
+        // let config_ids = meter_ids.history_config_id;
+        console.log("configs : ", config_ids);
         let tables = await module.exports.getMeterTables(config_ids);
+        console.log("tables : ", tables);
         records = await module.exports.meterRecordsByTables(tables, start_date, end_date);
         return records;
     }
@@ -539,23 +536,24 @@ module.exports = {
                 }
             })
             let customer = null;
+            let space = null;
             if (meter) {
-                let customer_ids = await CustomerMeter.findAll({
-                    attributes: ['customer_id'],
-                    raw: true,
+                space = await Space.findOne({
                     where: {
                         meter_id: meter.id
                     }
-                }).then(ids => ids.map(row => row.customer_id));
+                })
+                if (space) {
+                    console.log('space exist')
+                    customer = await Customer.findOne({
+                        where: {
+                            SpID: space.id
+                        }
+                    })
+                }
                 console.log('\n\n\n');
                 console.log("Meter ID " + meter.id);
-                console.log('Customer IDs ' + JSON.stringify(customer_ids) + '\n\n\n')
-                customer = await Customer.findOne({
-                    where: {
-                        status: true,
-                        id: { [Op.in]: customer_ids }
-                    }
-                })
+                console.log('Customer IDs ' + JSON.stringify(customer?.CId) + '\n\n\n')
                 if (customer) {
                     let enable_date = new Date(customer.enable_date).getTime();
                     let disable_date = new Date(customer.disable_date).getTime();
@@ -565,15 +563,9 @@ module.exports = {
             }
 
             let tableName = item.table.toLowerCase();
-            //  tableName = tableName.substring(tableName.indexOf("_") + 1);
-            /*             let records = await db.sequelize.query(` SELECT value from ${tableName} where status_tag not like  "%fault%" and status_tag not like "%stale%" and timestamp >= ${start_date} and
-                    timestamp <=${end_date}`, {
-                            type: db.sequelize.QueryTypes.SELECT
-                        })
-             */
-            let records = await db.sequelize.query(` SELECT value from ${tableName} where status=0 and timestamp >= ${start_date} and
-        timestamp <=${end_date}`, {
-                type: db.sequelize.QueryTypes.SELECT
+            let records = await db.sequelize.query(`SELECT value from ${tableName} where status=0 and timestamp >= :startDate AND timestamp <= :endDate`, {
+                type: db.sequelize.QueryTypes.SELECT,
+                replacements: { startDate: start_date, endDate: end_date }
             })
             let reading = module.exports.reading(records)
             let row = {};
@@ -581,9 +573,7 @@ module.exports = {
                 if (reading.length) {
                     row = {
                         meter: meter,
-                        site: await meter.getSite(),
-                        building: await meter.getBuilding(),
-                        floor: await meter.getFloor(),
+                        floor: await space.getFloor(),
                         customer: customer,
                         reading: reading
                     }
@@ -618,19 +608,11 @@ module.exports = {
         obj.push({ start_reading: records[0].value, end_reading: records[records.length - 1].value })
         let meter_reset = false;
 
-        //console.log('/n records.......',records);
-
         for (let i = 0; i < records.length; i++) {
             let reading = records[i].value;
             let prev_reading = records[i - 1]?.value
-
-            //console.log('\n\n\n');
-            //console.log('.......... prev reading: ', prev_reading ,'Reading ', reading);
-
             // if meter is reset then next value will be >0 and <15
             if (reading < prev_reading && reading <= 15 && !meter_reset) {
-                //console.log('\n\n\n');
-                //console.log('.......... prev reading: ', prev_reading ,'Reading ', reading);
                 if (obj.length == 1) {
                     obj[0].end_reading = records[i - 1]?.value;
                 }

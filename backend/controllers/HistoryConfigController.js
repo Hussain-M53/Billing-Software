@@ -1,4 +1,4 @@
-const db = require("../db/models");
+const db = require("../models");
 const HistoryConfig = db.HistoryConfig;
 const Meter = db.Meter;
 const {Op} = require('sequelize')

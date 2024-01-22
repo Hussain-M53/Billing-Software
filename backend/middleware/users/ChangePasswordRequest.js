@@ -1,5 +1,5 @@
 const {body, validationResult} = require('express-validator');
-const User = require('../../db/models').User;
+const User = require('../../models').User;
 const bcrypt = require('bcryptjs');
 exports.changePassword = [
     body('old_password').not().isEmpty(),

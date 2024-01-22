@@ -10,7 +10,6 @@ const MeterCollection = async (meters, responseType = ResponseType.FULL) => {
             let item = {
                 id: meter.id,
                 name: meter.name,
-                // floor: await meter.getFloor()
             }
             data.push(item);
         }

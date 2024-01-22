@@ -1,5 +1,6 @@
-const db = require("../db/models");
+const db = require("../models");
 const Space = db.Space;
+const Customer = db.Customer;
 const SpaceResource = require('../resources/SpaceResource')
 const SpaceCollection = require('../resources/collections/SpaceCollection')
 const Paging = require('../helpers/Paging')
@@ -68,18 +69,27 @@ module.exports = {
                 offset
             })
                 .then(async data => {
-                    console.log(data.rows)
                     const spaces = await SpaceCollection(data.rows);
                     const pagination = await Paging.getPagingData(data, currentPage, limit, search);
-                    res.send({ spaces, pagination });
+                    res.status(200).json({ spaces: spaces, pagination: pagination });
                 });
         } else if (responseType === ResponseType.FULL) {
+            let spaces = await Space.findAll();
+            let free_spaces = [];
 
-            const condition = {};
-            let spaces = await Space.findAll({
-                where: condition,
-            });
-            return res.status(200).json({ spaces })
+            for (const space of spaces) {
+                const customer = await Customer.findOne({
+                    where: {
+                        SpID: space.id,
+                        status: true
+                    }
+                });
+                if (!customer) {
+                    free_spaces.push(space);
+                }
+            }
+
+            return res.status(200).json({ spaces: free_spaces })
         }
 
     },
@@ -104,15 +114,26 @@ module.exports = {
             updated_by: req.query.user_id,
         })
         await space.save()
-        return res.status(200).json({ message: 'Space updated successfully.', space: await SpaceResource(space) });
+        return res.status(201).json({ message: 'Space updated successfully.', space: await SpaceResource(space) });
     },
     async destroy(req, res) {
         const id = req.params.id;
-        await Space.destroy({
+        let customer = await Customer.findAndCountAll({
             where: {
-                id: id
-            }
-        })
+                SpID: id
+            },
+        });
+
+        if (customer.count > 0) {
+            return res.status(409).json({ 'message': 'This space cannot be deleted as it is associated with a customer' });
+        } else {
+
+            await Space.destroy({
+                where: {
+                    id: id
+                }
+            })
+        }
         return res.status(200).json({ 'message': 'Space deleted successfully.' });
     },
 }

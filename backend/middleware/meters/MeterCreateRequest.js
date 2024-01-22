@@ -1,6 +1,6 @@
 const { body, validationResult } = require('express-validator');
-const Floor = require('../../db/models').Floor;
-const Meter = require('../../db/models').Meter;
+const Floor = require('../../models').Floor;
+const Meter = require('../../models').Meter;
 const { Op } = require('sequelize');
 
 exports.MeterCreateRequest = [

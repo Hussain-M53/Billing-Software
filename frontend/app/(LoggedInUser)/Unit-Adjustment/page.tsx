@@ -1,11 +1,14 @@
 'use client';
 
 import Link from "next/link";
-import { TrashIcon } from '@heroicons/react/24/outline'
+import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline'
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from 'react'
+import { FormEvent, useContext, useEffect, useState } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
-import { fetch_unitAdjustment } from '../../../utils/unit_adjustment'
+import { delete_unitAdjustment, fetch_unitAdjustments } from '../../../utils/unit_adjustment'
+import Fetching from "@/app/_component/loading/fetching";
+import Authorizing from "@/app/_component/loading/authorizing";
+
 
 const Page = () => {
     const router = useRouter();
@@ -30,7 +33,7 @@ const Page = () => {
 
     useEffect(() => {
         const fetch_data = async () => {
-            const data = await fetch_unitAdjustment(user.token, user.user.id, { size, activePage, search });
+            const data = await fetch_unitAdjustments(user.token, user.user.id, { size, activePage, search });
             if (data?.status == 200) {
                 console.log(data)
                 setData(data?.message);
@@ -44,7 +47,7 @@ const Page = () => {
         }
 
         fetch_data();
-    }, [search, activePage])
+    }, [search,isLoadingData])
 
 
     const formatDate = (dateString: Date) => {
@@ -52,22 +55,29 @@ const Page = () => {
         return date.toLocaleString();
     };
 
-    if (isAuthorizing || isLoadingData) return (
-        <div className='h-screen mx-auto justify-center items-center flex'>
-            <div>
-                <svg className="animate-spin ml-1 mr-3 h-10 w-10 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 2.21.896 4.21 2.344 5.648l2.657-2.357z"></path>
-                </svg>
-            </div>
-            <div>
-                {isLoadingData ? 'Fetching data...' : 'Checking for Authorization...'}
+    const delete_adj = async (e: FormEvent, id: string) => {
+        e.preventDefault();
+        if (confirm("Are you sure, you want to delete?")) {
+            setIsLoadingData(true);
+            const data = await delete_unitAdjustment(user.token, user.user.id, id);
+            alert(data?.message.message);
+        }
+    }
 
-            </div>
-        </div>);
+    if (isAuthorizing) {
+        return (
+            <Authorizing />
+        )
+    }
+
+    if (isLoadingData) {
+        return (
+            <Fetching />
+        )
+    }
 
     return (
-        <div className="container max-h-screen">
+        <div className="w-full max-h-screen">
             <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
                 <h1 className="text-3xl font-bold tracking-tight text-gray-900">Unit Adjustments</h1>
                 <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">
@@ -94,9 +104,11 @@ const Page = () => {
                         <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
                             <th className=" py-3 px-6 text-left">Execution Date</th>
                             <th className=" py-3 px-6 text-left">Meter</th>
-                            <th className=" py-3 px-6 text-center">Date</th>
+                            <th className=" py-3 px-6 text-center">From Date</th>
+                            <th className=" py-3 px-6 text-center">To Date</th>
                             <th className=" py-3 px-6 text-center">Current Units</th>
                             <th className=" py-3 px-6 text-center">Final Units</th>
+                            <th className=" py-3 px-6 text-center">Edit</th>
                             <th className=" py-3 px-6 text-center">Delete</th>
                         </tr>
                     </thead>
@@ -112,6 +124,9 @@ const Page = () => {
                                     {row.meter.name}
                                 </td>
                                 <td className="py-3 px-6 text-center">
+                                    {formatDate(row.fromDate)}
+                                </td>
+                                <td className="py-3 px-6 text-center">
                                     {formatDate(row.toDate)}
                                 </td>
 
@@ -123,8 +138,20 @@ const Page = () => {
                                 </td>
                                 <td className="py-3 px-6 text-center">
                                     <div className="flex item-center justify-center">
+                                        <div className="w-4 mr-2 transform text-blue-500 hover:text-blue-300 hover:scale-110">
+                                            <Link href={{
+                                                pathname: 'Unit-Adjustment/edit',
+                                                query: {
+                                                    id: row?.id,
+                                                }
+                                            }}><PencilIcon width={20} height={20} /></Link>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="py-3 px-6 text-center">
+                                    <div className="flex item-center justify-center">
                                         <div className="w-4 mr-2 transform text-red-500 hover:text-red-300 hover:scale-110">
-                                            <button><TrashIcon width={20} height={20} /></button>
+                                            <button onClick={(e) => delete_adj(e, row?.id)}><TrashIcon width={20} height={20} /></button>
                                         </div>
                                     </div>
                                 </td>

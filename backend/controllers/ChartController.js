@@ -1,5 +1,4 @@
-const db = require("../db/models");
-const HistoryConfig = db.HistoryConfig;
+const db = require("../models");
 const Meter = db.Meter;
 const { Op } = require('sequelize')
 const func = require('../middleware/permissions/CommonFunc')
@@ -545,7 +544,7 @@ module.exports = {
                             ).then(spResult => {
                                 let data = spResult[0];
 
-                                //console.log("data....",data);
+                                console.log("data....",data);
 
                                 // if no data found as per criteria then return 0
                                 if (data.length > 0) {
@@ -634,43 +633,17 @@ module.exports = {
 
     async getHourwiseData(startDate, endDate, isMBTU, meter_ids) {
 
-        // }
-        // async consumptionHourwiseChartData(req, res) {
-
-        // let {startDate, endDate, isMBTU, meter_ids, } = req.query;
-
-
-        //console.log("\n\n meter_ids.............",req.query);
-
-        // startDate = new Date(startDate);
-        // endDate = new Date(endDate);
-
-        //console.log("meter_ids",meter_ids);
-
-        // if(meter_ids === undefined)
-        // {
-        //     return res.status(409).json({'message': 'No meter(s) selected'});
-        // }
-
         // allow only one meter
         if (meter_ids.length > 0)
             meter_ids = meter_ids.slice(0, 1);
 
-        //console.log("\n\n\n startDate....", startDate, "\n end date.....",endDate);
         let meter_tables = await getMeters(meter_ids);
 
         const tonFactor = isMBTU == true ? 1 : func.tonFactor();
-        //console.log("\n\nTon factor", isMBTU);
 
         //--CAST(TIMESTAMP AS DATE) as DateValue, 
         const chartData = await Promise.all(
             meter_tables.map(async item => {
-
-                //console.log("\n\n item.....", item);
-
-                // proper string conversion
-                //startDate = func.dateStringCorrection(startDate);
-                //endDate = func.dateStringCorrection(endDate);
 
                 // check if dates are properly passed
                 let newStartDate = startDate.replace(/"/g, ''); // remove "" quotes from string
@@ -685,22 +658,10 @@ module.exports = {
 
                 let newEndDate = endDate.replace(/"/g, ''); // remove "" quotes from string
 
-                //console.log("\nnew end date check",newEndDate);
-
                 if (isNaN(new Date(newEndDate))) {
                     // todays date
                     newEndDate = new Date();
                 }
-
-                //console.log("\n\n\n 3..... new startDate....", newStartDate, "\n end date.....",newEndDate);
-                // Output: Sun Apr 30 2023 22:00:00 GMT+0300 (Eastern European Summer Time)
-
-                //                let spResult={};
-                //                try {
-
-                // const date1 =moment(newStartDate).utcOffset(0).format('YYYY-MM-DD HH:mm:ss')
-                // console.log("\nnew start date1 - moment", date1);
-
 
                 let spResult = {};
                 try {
@@ -714,9 +675,7 @@ module.exports = {
                         type: db.sequelize.QueryTypes.RAW,
                     },
                     ).then(async spResult => {
-                        // Process the result of the stored procedure call
-                        //console.log("stored procedure result............",spResult);
-
+                       
                         // note: stored procedure returns result as [ [], 3]
                         // where first item is an array or results
                         let data = spResult[0];
@@ -756,8 +715,6 @@ module.exports = {
                             ).then(spResult => {
                                 let data = spResult[0];
 
-                                //console.log("data....",data);
-
                                 // if no data found as per criteria then return 0
                                 if (data.length > 0) {
                                     // there will be only one result
@@ -768,8 +725,6 @@ module.exports = {
                                 return data;
                             })
 
-                            // console.log("\n\nmax value:", maxAllValues, "  min value:",minAllValues);
-
                             const consumedUnits = maxAllValues - minAllValues;
 
                             let result = data.map(row => {
@@ -777,7 +732,6 @@ module.exports = {
                                     ...row,
                                     meter_name: item.name,
                                     table_name: item.TABLE_NAME,
-                                    floor_name: item.floorName,
                                     tonFactor: tonFactor,
                                     maxAllValues: maxAllValues,
                                     minAllValues: minAllValues,
@@ -788,7 +742,7 @@ module.exports = {
                                     meter_id: item.id,
                                 };
                             })
-                            //console.log("result........", result);
+                           
                             return result;
 
                         } catch (error) {
@@ -805,28 +759,13 @@ module.exports = {
 
                 return spResult;
             })
-        );
-
-        ////////////////////////////////////////
-        // method is used to flatten the nested arrays into a single array
-
-
-        // Flatten the data using .reduce()
-        // const flattenedData = spResult.reduce((accumulator, innerArray) => {
-        //     return accumulator.concat(innerArray);
-        // }, []);                    
+        );               
 
         // Flatten the data using .flat()
         const flattenedData = chartData.flat();
 
-        //////////////////////////////////////////////
-        //console.log("flattenedData .....",flattenedData);
-
-        //console.log("Chart data.....",chartData);
-        // if (chartData == null){
-        //            return res.status(200).json({'chartData': flattenedData})
         return flattenedData;
-        // }
+
     },
 }
 

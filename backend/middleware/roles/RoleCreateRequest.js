@@ -1,5 +1,5 @@
 const {body, validationResult} = require('express-validator');
-const Role = require('../../db/models').Role;
+const Role = require('../../models').Role;
 exports.RoleCreateRequest = [
     body('name')
         .not().isEmpty().trim().escape()

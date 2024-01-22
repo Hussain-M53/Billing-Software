@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState,FormEvent } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
-import { fetch_billingsByCustomer } from '../../../../../utils/billing'
+import { fetch_billingsByCustomer, exportPdf } from '../../../../../utils/billing'
 import Authorizing from "@/app/_component/loading/authorizing";
 import { ArrowLeftCircleIcon } from "@heroicons/react/20/solid";
 
@@ -49,10 +49,21 @@ const Page = (params: any) => {
         fetch_data();
     }, [])
 
+    const export_pdf = async (e:FormEvent,customer_id: String, start_date: String, end_date: String) => {
+        e.preventDefault();
+        console.log('first')
+        const response = await exportPdf(user.token, user.user.id, customer_id, start_date, end_date);
+        if(response?.status == 200 ){
+
+        }else{
+            alert(response?.message?.message);
+        }
+    }
+
     const formatDate = (dateString: Date) => {
         const date = new Date(dateString);
         return (date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear());
-      };
+    };
 
     if (isAuthorizing) {
         return (
@@ -61,7 +72,7 @@ const Page = (params: any) => {
     }
 
     return (
-        <div className="container max-h-screen">
+        <div className="max-h-screen w-full">
             <div className="flex justify-start items-center mx-auto px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
                 <Link href={{
                     pathname: '/Billing/details',
@@ -141,10 +152,8 @@ const Page = (params: any) => {
                                 </td>
 
                                 <td className="py-2 px-2 text-center">
-                                    <button className="bg-red-500 hover:bg-transparent border hover:border-red-500 hover:text-red-500 text-white font-bold text-xs py-1 px-2 rounded">
-                                        <Link href={`${row?.CID_web}`}>
-                                            Export PDF
-                                        </Link>
+                                    <button onClick={(e) => export_pdf(e,row?.CID_web, row?.FromDate, row?.ToDate)} className="bg-red-500 hover:bg-transparent border hover:border-red-500 hover:text-red-500 text-white font-bold text-xs py-1 px-2 rounded">
+                                        Export PDF
                                     </button>
                                 </td>
                             </tr>

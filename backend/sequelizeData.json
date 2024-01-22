@@ -1,7 +1,0 @@
-[
-  "20220901090446-permissions-seeder.js",
-  "20220901095149-super_user_role-seeder.js",
-  "20220901103618-super_admin-seeder.js",
-  "20230621155502-add_unitAdjustmentPermissions.js",
-  "20230621163623-update_superUserPermissions.js"
-]

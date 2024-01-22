@@ -1,5 +1,6 @@
-const db = require("../db/models");
+const db = require("../models");
 const Floor = db.Floor;
+const Space = db.Space;
 const FloorResource = require('../resources/FloorResource')
 const FloorCollection = require('../resources/collections/FloorCollection')
 const Paging = require('../helpers/Paging')
@@ -92,14 +93,19 @@ module.exports = {
             updated_by: req.query.user_id,
         })
         await floor.save()
-        return res.status(200).json({ message: 'Floor updated successfully.', floor: await FloorResource(floor) });
+        return res.status(201).json({ message: 'Floor updated successfully.', floor: await FloorResource(floor) });
     },
     async destroy(req, res) {
         const id = req.params.id;
-        let floor = await Floor.findByPk(id);
-        let meters = await floor.getMeters();
-        if (meters.length > 0) {
-            return res.status(409).json({ 'message': 'This floor is associated with some meters' });
+        
+        let space = await Space.findAndCountAll({
+            where: {
+                floor_id: id
+            },
+        });
+
+        if (space.count > 0) {
+            return res.status(409).json({ message: 'This floor is associated with some spaces' });
         } else {
             await Floor.destroy({
                 where: {

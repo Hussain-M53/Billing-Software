@@ -1,5 +1,5 @@
 const { body, validationResult } = require('express-validator');
-const Space = require('../../db/models').Space;
+const Space = require('../../models').Space;
 const { Op } = require('sequelize')
 
 exports.SpaceCreateRequest = [

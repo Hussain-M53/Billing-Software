@@ -35,7 +35,6 @@ const Page = () => {
     const fetch_data = async () => {
       const data = await fetch_roles(user.token, user.user.id, { size, activePage, search });
       if (data?.status == 200) {
-        console.log(data)
         setData(data?.message);
       } else {
         alert(data?.message);
@@ -53,7 +52,7 @@ const Page = () => {
     if (confirm("Are you sure, you want to delete?")) {
       setIsLoadingData(true);
       const data = await delete_role(user.token, user.user.id, user_id);
-      alert(data?.message?.message);
+      alert(data?.message);
       setIsLoadingData(false);
     }
   }
@@ -72,7 +71,7 @@ const Page = () => {
   }
 
   return (
-    <div className="container">
+    <div className="h-screen w-full">
       <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Roles</h1>
         <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">

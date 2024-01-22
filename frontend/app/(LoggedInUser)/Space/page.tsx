@@ -45,16 +45,14 @@ const Page = () => {
 
   useEffect(() => {
     fetch_data();
-  }, [search, activePage])
+  }, [search, activePage,isLoadingData])
 
   const deleteSpace = async (e: FormEvent, space_id: string) => {
     e.preventDefault();
     if (confirm("Are you sure, you want to delete?")) {
+      setIsLoadingData(true);
       const data = await delete_space(user.token, user.user.id, space_id);
-      alert(data?.message?.message);
-      if (data?.status === 200) {
-        fetch_data();
-      }
+      alert(data?.message);
     }
   }
 
@@ -72,7 +70,7 @@ const Page = () => {
 
 
   return (
-    <div className="container max-h-screen">
+    <div className="w-full max-h-screen">
       <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Spaces</h1>
         <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">
@@ -150,7 +148,7 @@ const Page = () => {
       </div>
       <div className="flex mx-12 items-center justify-between">
         <div className='rounded-full px-4 py-2 bg-gray-600 text-white'>
-          Showing {(data?.pagination.currentPage - 1) * size + (data?.pagination?.totalItems > 0 ? 1 : 0)} to {data?.pagination.totalItems - ((data?.pagination.currentPage - 1) * size) > size ? (data?.pagination.currentPage) * size : data?.pagination.totalItems} of {data?.pagination.totalItems} results
+          Showing {(data?.pagination?.currentPage - 1) * size + (data?.pagination?.totalItems > 0 ? 1 : 0)} to {data?.pagination.totalItems - ((data?.pagination.currentPage - 1) * size) > size ? (data?.pagination?.currentPage) * size : data?.pagination?.totalItems} of {data?.pagination?.totalItems} results
         </div>
         <div className="flex gap-x-2">
           <button
@@ -161,9 +159,9 @@ const Page = () => {
             Previous
           </button>
           <button
-            className={`${activePage === data.pagination.totalPages ? 'bg-gray-300 text-gray-100' : 'bg-gray-900 text-white hover:bg-gray-700'} flex items-center gap-2 py-2 px-4 rounded`}
+            className={`${activePage === data?.pagination?.totalPages ? 'bg-gray-300 text-gray-100' : 'bg-gray-900 text-white hover:bg-gray-700'} flex items-center gap-2 py-2 px-4 rounded`}
             onClick={next}
-            disabled={activePage === data.pagination.totalPages}
+            disabled={activePage === data?.pagination?.totalPages}
           >
             Next
           </button>

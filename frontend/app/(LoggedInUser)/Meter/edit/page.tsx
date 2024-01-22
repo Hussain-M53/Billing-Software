@@ -54,8 +54,8 @@ const Page = (params: any) => {
         setSave(true);
         const create = async () => {
             const response = await update_meter(user.token, user.user.id, data);
-            if (response!.status == 200) {
-                alert(response?.message?.meter);
+            if (response!.status == 201) {
+                alert(response?.message?.message);
                 router.push('/Meter');
             } else {
                 alert(response?.message);
@@ -83,7 +83,7 @@ const Page = (params: any) => {
             <div className="w-full mx-auto border-b border-gray-900/10 pb-8 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Name
+                        Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -123,7 +123,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-full">
                     <label htmlFor="description" className="block text-sm font-medium leading-6 text-gray-900">
-                        Description
+                        Description<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -141,7 +141,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Status
+                        Select Status<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select
@@ -160,7 +160,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="meterTable" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Meter Table
+                        Select Meter Table<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select

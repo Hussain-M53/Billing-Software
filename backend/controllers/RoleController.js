@@ -1,5 +1,5 @@
-const Role = require('../db/models').Role;
-const User = require('../db/models').User;
+const Role = require('../models').Role;
+const User = require('../models').User;
 const ResponseType = require('../enums/ResponseType')
 const RoleCollection = require('../resources/collections/RoleCollection');
 const Paging = require('../helpers/Paging')
@@ -106,7 +106,6 @@ const roleController = {
             const isSuper = await func.isSuperUser(req.user.user_id);
             // only allow super user role if logged in by super user
             if (!isSuper) {
-                //            if (req.user.user_id != 1) {
                 roles = roles.filter(role => role.key !== '@super_user');
             }
             return res.status(200).json({ roles: await RoleCollection(roles, responseType) })
@@ -122,7 +121,6 @@ const roleController = {
         if (users.length > 0) {
             return res.status(409).json({ message: 'This role is associated with some users.' });
         } else {
-
             // cannot delete super user role-main
             if (id == 1) {
                 return res.status(409).json({ message: 'Unauthorized action' });

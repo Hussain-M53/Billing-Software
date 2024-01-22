@@ -1,214 +1,319 @@
 'use client';
 
-import { ChangeEvent, FormEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useContext, useState, useEffect } from "react";
 import Link from "next/link";
-import { fetch_roles, create_user } from "@/utils/user";
 import { AuthContext } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
+import { previewData, update_billing, fetch_billing } from "@/utils/billing";
 
-const Page = () => {
+const Page = (params: any) => {
 
     const { user } = useContext(AuthContext);
-    const [data, setData] = useState({});
+    const [data, setData] = useState([] as any);
     const router = useRouter();
-
-    useEffect(() => {
-        const fetch_data = async () => {
-            const data = await fetch_roles(user.token, user.user.id);
-            if (data?.status == 200) {
-                console.log(data)
-                setData(data?.message);
-            } else {
-                alert(data?.message);
-                router.push('/Dashboard');
-            }
-        }
-
-        fetch_data();
-    }, [])
+    const [prevData, setPrevData] = useState([] as any);
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const create = async () => {
-            const data = await create_user(user.token, user.user.id);
-            if (data!.status == 201) {
-                alert(data?.message?.message);
-                router.push('/User');
+            const response = await update_billing(user.token, user.user.id, params.searchParams.id, data);
+            if (response!.status == 201) {
+                alert(response?.message?.message);
+                router.push('/Billing');
             } else {
-                alert(data?.message);
+                alert(response?.message);
             }
         }
         create();
     }
 
+    useEffect(() => {
+        const fetchBills = async () => {
+            const response = await fetch_billing(user.token, user.user.id, params.searchParams.id);
+            if (response?.status == 200) {
+                console.log(response)
+                setData(response?.message?.billing);
+            } else {
+                alert(response?.message);
+            }
+        }
+        fetchBills();
+    }, [])
+
+    const fetch_previewData = async (e: any) => {
+        e.preventDefault();
+        const response = await previewData(user.token, user.user.id, data.fromDate, data.toDate, params.searchParams.id);
+        if (response?.status == 200) {
+            console.log(response)
+            setPrevData(response?.message.previewData);
+            setData((prevData: any) => ({
+                ...prevData,
+                previewData: response?.message.previewData
+            }))
+        } else {
+            alert(response?.message);
+        }
+    }
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setData(prevData => ({
+        setData((prevData: any) => ({
             ...prevData,
             [e.target.name]: e.target.value
         }));
     };
 
     return (
-        <form onSubmit={handleSubmit} className='m-auto w-3/5 p-10 bg-gray-100 rounded-md'>
-            <div className="w-full mx-auto border-b border-gray-900/10 pb-8 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Billing-Month
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="date"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
+        <div className='pt-4 flex w-full flex-col items-center max-h-screen overflow-y-auto'>
+            <form onSubmit={handleSubmit} className='mx-auto w-11/12 mt-4 h-fit p-6 bg-gray-100 rounded-md'>
+                <div className="w-full mx-auto border-b border-gray-900/10 pb-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-7">
+                    <div className="sm:col-span-1">
+                        <label htmlFor="DocDate" className="block text-sm font-medium leading-6 text-gray-900">
+                            Billing-Month<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                name="DocDate"
+                                id="DocDate"
+                                autoComplete="DocDate"
+                                defaultValue={data?.DocDate}
+                                onChange={(e) => handleChange(e)}
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="DocNo" className="block text-sm font-medium leading-6 text-gray-900">
+                            Doc No<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="text"
+                                name="DocNo"
+                                id="DocNo"
+                                autoComplete="DocNo"
+                                defaultValue={data?.DocNo}
+                                onChange={(e) => handleChange(e)}
+                                placeholder="E.g Sep-2020"
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="IssueDate" className="block text-sm font-medium leading-6 text-gray-900">
+                            Issue Date<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                name="IssueDate"
+                                id="IssueDate"
+                                defaultValue={data?.IssueDate}
+                                onChange={(e) => handleChange(e)}
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="DueDate" className="block text-sm font-medium leading-6 text-gray-900">
+                            Due Date<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                name="DueDate"
+                                id="DueDate"
+                                defaultValue={data?.DueDate}
+                                onChange={(e) => handleChange(e)}
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="RatePerTonHour" className="block text-sm font-medium leading-6 text-gray-900">
+                            RATE PER KWH <span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="number"
+                                name="RatePerTonHour"
+                                id="RatePerTonHour"
+                                defaultValue={data?.RatePerTonHour}
+                                onChange={(e) => handleChange(e)}
+                                min={0}
+                                autoComplete="rate"
+                                placeholder="Enter rate per unit"
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="fromDate" className="block text-sm font-medium leading-6 text-gray-900">
+                            From Date<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                name="fromDate"
+                                defaultValue={data?.fromDate}
+                                id="fromDate"
+                                disabled={true}
+                                onChange={(e) => handleChange(e)}
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="sm:col-span-1">
+                        <label htmlFor="toDate" className="block text-sm font-medium leading-6 text-gray-900">
+                            To Date<span className="text-red-600">*</span>
+                        </label>
+                        <div className="mt-2">
+                            <input
+                                type="date"
+                                name="toDate"
+                                defaultValue={data?.toDate}
+                                id="toDate"
+                                onChange={(e) => handleChange(e)}
+                                className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                            />
+                        </div>
                     </div>
                 </div>
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Issue Date
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="date"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
+                <div className="mt-4 flex items-center justify-end gap-x-6">
+                    <Link href={'/Billing'} className="text-sm font-semibold leading-6 text-gray-900">
+                        Cancel
+                    </Link>
+                    <button
+                        onClick={(e) => fetch_previewData(e)}
+                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                        Preview Data
+                    </button>
+                    <button
+                        className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                    >
+                        Generate Bill
+                    </button>
                 </div>
+            </form>
+            {prevData.length > 0 &&
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        RATE PER KWH
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="number"
-                            name="first-name"
-                            id="first-name"
-                            min={0}
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+                <div className="bg-white w-11/12 shadow-md rounded-xl my-4">
+                    <table className="min-w-max w-full table-auto">
+                        <thead>
+                            <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
+                                <th className="py-2 px-2 text-left">Customer Name</th>
+                                <th className="py-2 px-2 text-left">Code</th>
+                                <th className="py-2 px-2 text-center">Prev.Reading</th>
+                                <th className="py-2 px-2 text-center">Cur.Reading</th>
+                                <th className="py-2 px-2 text-center">Units Consumed</th>
+                                <th className="py-2 px-2 text-center">Others Charges</th>
+                                <th className="py-2 px-2 text-center">Service Charges</th>
+                                <th className="py-2 px-2 text-center">Arrears Charges</th>
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        From Date
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="date"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        To Date
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="date"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+                            </tr>
+                        </thead>
+                        <tbody className="text-gray-600 text-sm font-light">
+                            {prevData?.map((row: any, index: number) => (
+                                <tr key={index} className="border-b border-gray-200 hover:bg-gray-100">
+                                    <td className="py-2 px-2 text-left">
+                                        <span className="font-medium">{row?.CName}</span>
+                                    </td>
+                                    <td className="py-2 px-2 text-left">
+                                        <span className="font-medium">{row?.Code}</span>
+                                    </td>
+                                    <td className="py-2 px-2 text-center">
+                                        <span >{row?.PreviousReadingTonHour}</span>
+                                    </td>
+                                    <td className="py-2 px-2 text-center">
+                                        <span >{row?.CurrentReadingTonHour}</span>
+                                    </td>
+                                    <td className="py-2 px-2 text-center">
+                                        <span >{row?.UnitsConsumedTonHour}</span>
+                                    </td>
+                                    <td className="py-2 px-2 text-center">
+                                        <input
+                                            type="text"
+                                            name="OthersText"
+                                            id="OthersText"
+                                            value={row?.details?.OtherChargesText}
+                                            onChange={(e) => handleChange(e)}
+                                            placeholder="Enter charges type"
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                        <input
+                                            type="number"
+                                            name="OthersCharges"
+                                            id="OthersCharges"
+                                            onChange={(e) => handleChange(e)}
+                                            min={0}
+                                            value={row?.details?.OtherCharges}
+                                            placeholder="Enter charges amount"
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </td>
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Text 1
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="text"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Text 1 Charges
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="number"
-                            min={0}
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+                                    <td className="py-2 px-2 text-center">
+                                        <input
+                                            type="text"
+                                            name="ServiceText"
+                                            id="ServiceText"
+                                            onChange={(e) => handleChange(e)}
+                                            autoComplete="ServiceText"
+                                            value={row?.details?.ServiceChargesText}
+                                            placeholder="Enter service type"
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                        <input
+                                            type="number"
+                                            name="ServiceCharges"
+                                            id="ServiceCharges"
+                                            onChange={(e) => handleChange(e)}
+                                            min={0}
+                                            value={row?.details?.ServiceCharges}
+                                            autoComplete="ServiceCharges"
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </td>
 
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Text 2
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="text"
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
-                <div className="sm:col-span-3">
-                    <label htmlFor="first-name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Text 2 Charges
-                    </label>
-                    <div className="mt-2">
-                        <input
-                            type="number"
-                            min={0}
-                            name="first-name"
-                            id="first-name"
-                            autoComplete="given-name"
-                            placeholder="Enter customer name"
-                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        />
-                    </div>
-                </div>
+                                    <td className="py-2 px-2 text-center">
+                                        <input
+                                            type="text"
+                                            name="ArrearsText"
+                                            id="ArrearsText"
+                                            onChange={(e) => handleChange(e)}
+                                            value={row?.details?.ArrearsText}
+                                            placeholder="Enter arrears type"
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                        <input
+                                            type="number"
+                                            name="ServiceCharges"
+                                            id="ServiceCharges"
+                                            onChange={(e) => handleChange(e)}
+                                            min={0}
+                                            placeholder="Enter arrears charges"
+                                            value={row?.details?.Arrears}
+                                            className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        />
+                                    </td>
 
-            </div>
 
-            <div className="mt-6 flex items-center justify-end gap-x-6">
-                <Link href={'/Billing'} className="text-sm font-semibold leading-6 text-gray-900">
-                    Cancel
-                </Link>
-                <button
-                    className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                >
-                    Save
-                </button>
-            </div>
-        </form>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
     )
 }
 

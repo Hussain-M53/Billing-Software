@@ -7,6 +7,7 @@ import { AuthContext } from "@/app/_context/AuthContext";
 import { fetch_billings } from '../../../utils/billing'
 import Authorizing from "@/app/_component/loading/authorizing";
 import Fetching from "@/app/_component/loading/fetching";
+import { PencilIcon } from "@heroicons/react/24/outline";
 
 const Page = () => {
   const router = useRouter();
@@ -64,7 +65,7 @@ const Page = () => {
   }
 
   return (
-    <div className="container max-h-screen">
+    <div className="w-full max-h-screen">
       <div className="flex justify-between items-center mx-auto px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Billings</h1>
         <button className="bg-indigo-700 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">
@@ -88,12 +89,13 @@ const Page = () => {
       <div className="bg-white shadow-md rounded-xl mx-10 my-4">
         <table className="min-w-max w-full table-auto">
           <thead>
-            <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
+            <tr className="bg-gray-600 text-gray-200 text-sm leading-normal ">
               <th className="py-3 px-2 text-left">Billing Month</th>
               <th className="py-3 px-2 text-left">Issue Date</th>
               <th className="py-3 px-2 text-center">From Date</th>
               <th className="py-3 px-2 text-center">To Date</th>
               <th className="py-3 px-2 text-center">Rate per KWH</th>
+              <th className="py-3 px-2 text-center">Edit</th>
               <th className="py-3 px-2 text-center">Details</th>
               <th className="py-3 px-2 text-center">Print</th>
 
@@ -122,8 +124,20 @@ const Page = () => {
                 <td className="py-2 px-6 text-center">
                   {row?.RatePerTonHour}
                 </td>
+                <td className="py-3 px-6 text-center">
+                  <div className="flex item-center justify-center">
+                    <div className="w-4 mr-2 transform text-blue-500 hover:text-blue-300 hover:scale-110">
+                      <Link href={{
+                        pathname: 'Billing/edit',
+                        query: {
+                          id: row?.BillingId,
+                        }
+                      }}><PencilIcon width={20} height={20} /></Link>
+                    </div>
+                  </div>
+                </td>
 
-                <td className="py-2 px-6 text-center">
+                <td className="py-2 px-4 text-center">
                   <button className="bg-orange-500 hover:bg-transparent border hover:border-orange-500 hover:text-orange-500 text-white font-bold text-xs py-2 px-3 rounded">
                     <Link href={{
                       pathname: 'Billing/details',

@@ -4,7 +4,7 @@ import api from './api/axios'
 
 export const fetch_meter = async (token, id) => {
     try {
-        const response = await api.get(`meters/tagging-meters/free?user_id=${id}&token=${token}`);
+        const response = await api.get(`meters/all/full?user_id=${id}&token=${token}`);
 
         if (response.status === 200) {
             console.log(response.data)

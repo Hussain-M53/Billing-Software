@@ -20,32 +20,26 @@ export const authenticate_user = async (user) => {
         }
     } catch (error) {
         if (error.response) {
-            // Status code 422: validation error
-            if (error.response.status === 422) {
-                const errorMsg = error.response.data.errors.map(err => err.msg).join(', ');
-                console.log(errorMsg);
-                return {
-                    status: error.response.status,
-                    message: errorMsg
-                }
-            }
-
             // Status code 403: incorrect credentials
-            if (error.response.status === 403) {
-                console.log(error.response.data.msg);
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
-                    message: error.response.data.msg
+                    message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
-
         // Network or other errors
         return {
             status: 500,
@@ -73,18 +67,23 @@ export const fetch_user = async (token, id, query) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -114,18 +113,23 @@ export const fetch_roles = async (token, id) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -155,7 +159,6 @@ export const create_user = async (token, id, user) => {
 
         // Status code 201: success
         if (response.status === 201) {
-            console.log(response)
             return {
                 status: response.status,
                 message: response.data,
@@ -164,18 +167,23 @@ export const create_user = async (token, id, user) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -204,8 +212,7 @@ export const update_user = async (token, id, user) => {
             });
 
         // Status code 200: success
-        if (response.status === 200) {
-            console.log(response)
+        if (response.status === 201) {
             return {
                 status: response.status,
                 message: response.data,
@@ -214,18 +221,23 @@ export const update_user = async (token, id, user) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -242,7 +254,6 @@ export const delete_user = async (token, id, id_to_delete) => {
 
         // Status code 200: success
         if (response.status === 200) {
-            console.log(response)
             return {
                 status: response.status,
                 message: response.data,
@@ -252,17 +263,22 @@ export const delete_user = async (token, id, id_to_delete) => {
         if (error.response) {
             // Status code 403: incorrect credentials
             if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
-                console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors

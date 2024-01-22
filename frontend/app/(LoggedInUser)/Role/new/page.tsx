@@ -77,7 +77,7 @@ const Page = () => {
             <div className="w-full mx-auto border-b border-gray-900/10 pb-4 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Name
+                        Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-1">
                         <input

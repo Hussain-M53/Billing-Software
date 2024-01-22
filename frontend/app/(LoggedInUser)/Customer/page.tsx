@@ -51,6 +51,7 @@ const Page = () => {
   const deleteCustomer = async (e: FormEvent, customer_id: string) => {
     e.preventDefault();
     if (confirm("Are you sure, you want to delete?")) {
+      setIsLoadingData(true);
       const data = await delete_customer(user.token, user.user.id, customer_id);
       alert(data?.message);
     }
@@ -69,7 +70,7 @@ const Page = () => {
   }
 
   return (
-    <div className="container max-h-screen">
+    <div className="w-full max-h-screen">
       <div className="flex justify-between items-center mx-auto  px-4 py-3.5 sm:px-6 lg:px-8 bg-white shadow ">
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">Customers</h1>
         <button className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm py-2 px-4 rounded">
@@ -134,7 +135,7 @@ const Page = () => {
                       <Link href={{
                         pathname: 'Customer/edit',
                         query: {
-                          id: row?.id,
+                          id: row?.CId,
                         }
                       }}><PencilIcon width={20} height={20} /></Link>
                     </div>
@@ -143,7 +144,7 @@ const Page = () => {
                 <td className="py-2 px-6 text-center">
                   <div className="flex item-center justify-center">
                     <div className="w-4 mr-2 transform text-red-500 hover:text-red-300 hover:scale-110">
-                      <button onClick={(e) => deleteCustomer(e, row?.id)}><TrashIcon width={20} height={20} /></button>
+                      <button onClick={(e) => deleteCustomer(e, row?.CId)}><TrashIcon width={20} height={20} /></button>
                     </div>
                   </div>
                 </td>

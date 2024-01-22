@@ -1,5 +1,5 @@
 const {body, validationResult} = require('express-validator');
-const User = require('../../db/models').User;
+const User = require('../../models').User;
 exports.userUpdateRequest = [
     body('email')
         .isEmail()

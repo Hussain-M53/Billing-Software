@@ -6,6 +6,7 @@ import { fetch_roles, update_user } from "@/utils/user";
 import { AuthContext } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import Saving from "@/app/_component/loading/saving";
+import Fetching from "@/app/_component/loading/fetching";
 
 interface Role {
     id: string;
@@ -21,6 +22,7 @@ const Page = (params: any) => {
     const { user } = useContext(AuthContext);
     const [data, setData] = useState<Data>({ roles: [] });
     const router = useRouter();
+    const [isLoadingData,setIsLoadingData] = useState(true);
     const [userData, setUserData] = useState<{ [key: string]: string }>({
         id: params.searchParams.id,
         name: params.searchParams.name,
@@ -37,6 +39,7 @@ const Page = (params: any) => {
             const data = await fetch_roles(user.token, user.user.id);
             if (data?.status == 200) {
                 setData(data?.message);
+                setIsLoadingData(false);
             } else {
                 alert(data?.message);
                 router.push('/Dashboard');
@@ -47,10 +50,11 @@ const Page = (params: any) => {
     }, [])
 
     const handleSubmit = (e: FormEvent) => {
+        setSave(true)
         e.preventDefault();
         const update = async () => {
             const data = await update_user(user.token, user.user.id, userData);
-            if (data!.status == 200) {
+            if (data!.status == 201) {
                 alert(data?.message?.message);
                 router.push('/User');
             } else {
@@ -69,12 +73,18 @@ const Page = (params: any) => {
         }));
     };
 
+    if (isLoadingData) {
+        return (
+            <Fetching />
+        )
+    }
+
     return (
         <form onSubmit={handleSubmit} className='m-auto w-3/5 p-10 bg-gray-100 rounded-md'>
             <div className="w-full mx-auto border-b border-gray-900/10 pb-8 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Full Name
+                        Full Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -92,7 +102,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                        User Name
+                        User Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -110,7 +120,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-4">
                     <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                        Email address
+                        Email address<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -128,7 +138,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-2">
                     <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Role
+                        Select Role<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select
@@ -148,7 +158,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                        Password
+                        Password<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -165,7 +175,7 @@ const Page = (params: any) => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="confirm_password" className="block text-sm font-medium leading-6 text-gray-900">
-                        Confirm Password
+                        Confirm Password<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -188,7 +198,6 @@ const Page = (params: any) => {
                     Cancel
                 </Link>
                 <button
-                    onClick={(e) => { e.preventDefault(); setSave(true); }}
                     className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                     {(save) ? <Saving /> :

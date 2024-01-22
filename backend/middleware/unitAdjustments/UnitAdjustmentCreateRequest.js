@@ -1,8 +1,7 @@
 const {body, validationResult} = require('express-validator');
-const UnitAdjustment = require('../../db/models').UnitAdjustment;
+const UnitAdjustment = require('../../models').UnitAdjustment;
 const {Op} = require('sequelize')
 
-// Custom validation function to check if the value is a valid date
 const isValidDate = (value) => {
     const date = new Date(value);
     return !isNaN(date.getTime());
@@ -31,22 +30,20 @@ exports.UnitAdjustmentCreateRequest = [
         .withMessage('Invalid final units ton-hour')
         .custom((finalUnitsTonHour) => finalUnitsTonHour >= 0)
         .withMessage('Final Units value must not be less than zero'),
-    body('CoID')
-        .not().isEmpty()
-        .withMessage('Invalid Company'),
+  
     async (req, res, next) => {
         const errors = validationResult(req);
-        // const {docNo} = req.body;
-        // const unitAdjustment = await UnitAdjustment.findOne({
-        //     where: {
-        //         [Op.and]: [
-        //             {docNo: docNo},
-        //         ]
-        //     }
-        // });
-        // if (unitAdjustment) {
-        //     return res.status(409).json({message: 'Duplicate record found, please check.', code:'docNo'}).send();
-        // }
+        const {docNo} = req.body;
+        const unitAdjustment = await UnitAdjustment.findOne({
+            where: {
+                [Op.and]: [
+                    {docNo: docNo},
+                ]
+            }
+        });
+        if (unitAdjustment) {
+            return res.status(409).json({message: 'Duplicate record found, please check.', code:'docNo'}).send();
+        }
         if (!errors.isEmpty())
             return res.status(422).json({errors: errors.array()});
         else

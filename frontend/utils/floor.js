@@ -7,7 +7,6 @@ export const fetch_floor = async (token, id, query) => {
 
         // Status code 200: success
         if (response.status === 200) {
-            console.log(response.data)
             return {
                 status: response.status,
                 message: response.data,
@@ -16,18 +15,23 @@ export const fetch_floor = async (token, id, query) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -53,7 +57,6 @@ export const create_floor = async (token, id, floor) => {
 
         // Status code 201: success
         if (response.status === 201) {
-            console.log(response)
             return {
                 status: response.status,
                 message: response.data,
@@ -62,18 +65,23 @@ export const create_floor = async (token, id, floor) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -98,8 +106,7 @@ export const update_floor = async (token, id, floor) => {
             });
 
         // Status code 200: success
-        if (response.status === 200) {
-            console.log(response)
+        if (response.status === 201) {
             return {
                 status: response.status,
                 message: response.data,
@@ -108,18 +115,23 @@ export const update_floor = async (token, id, floor) => {
     } catch (error) {
         if (error.response) {
             // Status code 403: incorrect credentials
-            if (error.response.status === 403 || error.response.status === 401) {
-                console.log(error.response.status, error.response.data.message)
+            if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                console.log(error.response.data.errors)
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors
@@ -136,7 +148,6 @@ export const delete_floor = async (token, id, id_to_delete) => {
 
         // Status code 200: success
         if (response.status === 200) {
-            console.log(response)
             return {
                 status: response.status,
                 message: response.data,
@@ -146,17 +157,21 @@ export const delete_floor = async (token, id, id_to_delete) => {
         if (error.response) {
             // Status code 403: incorrect credentials
             if (error.response.status === 403 || error.response.status === 401 || error.response.status === 409) {
-                console.log(error.response.status, error.response.data.message)
                 return {
                     status: error.response.status,
                     message: error.response.data.message
+                }
+            } else if (error.response.status === 422) {
+                return {
+                    status: error.response.status,
+                    message: error.response.data.errors
                 }
             }
 
             // Other errors
             return {
                 status: error.response.status,
-                message: error.response.data.msg || 'An error occurred',
+                message: error.response.data.errors || 'An error occurred',
             }
         }
         // Network or other errors

@@ -1,4 +1,4 @@
-const User = require('../db/models').User;
+const User = require('../models').User;
 const BaseRepository = require('./BaseRepository')
 
 const UserRepository = class extends BaseRepository {

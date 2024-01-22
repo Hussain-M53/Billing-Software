@@ -1,13 +1,11 @@
-const db = require("../db/models");
+const db = require("../models");
 const Customer = db.Customer;
 const BillingDetails = db.BillingDetails;
-const Meter = db.Meter;
 const CustomerResource = require('../resources/CustomerResource')
 const CustomerCollection = require('../resources/collections/CustomerCollection')
 const Paging = require('../helpers/Paging')
 const { Op } = require('sequelize')
 const ResponseType = require('../enums/ResponseType')
-const MeterResource = require('../resources/MeterResource')
 
 module.exports = {
 
@@ -19,12 +17,10 @@ module.exports = {
         ];
 
         await Customer.findAll({
-            //    where: condition,
             order: order,
             limit,
         })
             .then(async data => {
-                //console.log("data.rows.........",data[0]);
                 if (data[0] !== undefined)
                     id = data[0].CId + 1;
             });
@@ -34,12 +30,11 @@ module.exports = {
 
     async create(req, res) {
         let response = null;
-        // let { CName, Code, contact, MobNo, Email, ContactPerson, Add1, TelNo, enable_date, disable_date, status, MeterId, claimedPer, CoID } = req.body;
-        let { CName, Code,mobile, Email, contact_person, address, enable_date, disable_date, status, MeterId } = req.body;
+        let { CName, Code, mobile, Email, contact_person, address, enable_date, disable_date, status, spaceId } = req.body;
 
         // enable_date is set to be not null default value to NOW
-        enable_date = enable_date == '' ? new Date() : enable_date;
-        disable_date = disable_date == '' ? null : disable_date;
+        enable_date = enable_date == null ? new Date() : enable_date;
+        disable_date = disable_date == null ? null : disable_date;
         if (status) {
             disable_date = null;
         }
@@ -49,9 +44,9 @@ module.exports = {
         const customer = await Customer.create(
             {
                 CId: id,
-                CName, Code, contact, mobile, Email, contact_person, address, enable_date,
-                disable_date, status, MeterId,
-                created_by: req.user.user_id,
+                CName, Code, MobNo: mobile, Email, ContactPerson: contact_person, Address: address, enable_date,
+                disable_date, status, SpID: spaceId,
+                created_by: req.query.user_id,
             }
         );
         response = res.status(201).json({
@@ -102,7 +97,7 @@ module.exports = {
                     const pagination = await Paging.getPagingData(data, currentPage, limit, search);
                     res.status(200).json({ customers, pagination });
                 }).catch(err => {
-                    console.log("Error : ",err)
+                    console.log("Error : ", err)
                 });
         } else if (response_type === ResponseType.FULL) {
             console.log("\n\n response full");
@@ -134,24 +129,25 @@ module.exports = {
     },
     async update(req, res) {
         const id = req.params.id;
-        let { CName, Code, contact, MobNo, Email, ContactPerson, Add1, TelNo, enable_date, disable_date, status, MeterId, claimedPer, CoID } = req.body;
+        let { CName, Code, mobile, Email, contact_person, address, enable_date, disable_date, status, spaceId } = req.body;
         // enable_date is set to be not null default value to NOW
-        enable_date = enable_date == '' ? new Date() : enable_date;
-        disable_date = disable_date == '' ? null : disable_date;
+        enable_date = enable_date == null ? new Date() : enable_date;
+        disable_date = disable_date == null ? null : disable_date;
         if (status) {
             disable_date = null;
         }
         let customer = await Customer.findByPk(id);
         customer.set({
-            CName, Code, contact, MobNo, Email, ContactPerson, Add1, TelNo, enable_date,
-            disable_date, status, MeterId, claimedPer, CoID,
-            updated_by: req.user.user_id,
+            CName, Code, MobNo: mobile, Email, ContactPerson: contact_person, Address: address, enable_date,
+            disable_date, status, SpID: spaceId,
+            updated_by: req.query.user_id,
         })
         await customer.save()
-        return res.status(200).json({ customer: await CustomerResource(customer) });
+        return res.status(201).json({ message: "Customer updated successfully ", customer: await CustomerResource(customer) });
     },
     async destroy(req, res) {
         const id = req.params.id;
+        console.log(id)
         const customer = await Customer.findByPk(id);
 
         // check if any bill is generated for this customer
@@ -166,22 +162,7 @@ module.exports = {
             await customer.destroy();
         }
 
-        return res.status(200).json({ 'message': 'Customer deleted successfully.' });
-    },
-    //    getCustomerFloor: async function (MeterId) {
-    async getCustomerFloor(MeterId) {
-
-        //console.log("Meter id............", MeterId);
-
-        const meter = await Meter.findAll({
-            where: {
-                id: MeterId,
-            }
-        })
-        meter = await MeterResource(meter);
-        const floor = meter.floor;
-
-        return floor;
+        return res.status(200).json({ message: 'Customer deleted successfully.' });
     },
 
     async floorCustomers(req, res) {

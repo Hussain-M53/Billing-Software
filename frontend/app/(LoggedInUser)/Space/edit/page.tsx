@@ -5,21 +5,21 @@ import Link from "next/link";
 import { AuthContext } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import { fetch_meter, fetch_floor, update_space, fetch_space } from "@/utils/space";
+import Fetching from "@/app/_component/loading/fetching";
 
 
 const Page = (params: any) => {
     const { user } = useContext(AuthContext);
     const [floors, setFloors] = useState([] as any);
     const [meters, setMeters] = useState([] as any);
-    const [data, setData] = useState({
-
-    } as any);
+    const [isLoadingData, setIsLoadingData] = useState(true);
+    const [data, setData] = useState({} as any);
     const router = useRouter();
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         const response = await update_space(user.token, user.user.id, data);
-        if (response?.status == 200) {
+        if (response?.status == 201) {
             alert(response?.message?.message);
             router.push('/Space');
         } else {
@@ -32,7 +32,6 @@ const Page = (params: any) => {
         const fetch_meters = async () => {
             const data = await fetch_meter(user.token, user.user.id);
             if (data?.status == 200) {
-                console.log(data)
                 setMeters(data?.message.meters);
             } else {
                 alert(data?.message);
@@ -50,21 +49,18 @@ const Page = (params: any) => {
                 router.push('/Meter');
             }
         }
-        fetch_floors();
-        fetch_meters();
-    }, [])
-
-    useEffect(() => {
         const fetch_data = async () => {
             const data = await fetch_space(user.token, user.user.id, params.searchParams.id);
             if (data?.status == 200) {
-                console.log(data)
-                setData(data?.message.space);
+                setData(data?.message?.space);
+                setIsLoadingData(false);
             } else {
                 alert(data?.message);
                 router.push('/Dashboard');
             }
         }
+        fetch_floors();
+        fetch_meters();
         fetch_data();
     }, [])
 
@@ -74,6 +70,13 @@ const Page = (params: any) => {
             [e.target.name]: e.target.value
         }));
     };
+
+    if (isLoadingData) {
+        return (
+            <Fetching />
+        )
+    }
+
 
     return (
         <form onSubmit={handleSubmit} className='m-auto w-3/5 p-10 bg-gray-100 rounded-md'>

@@ -64,7 +64,7 @@ const Page = () => {
             <div className="w-full mx-auto border-b border-gray-900/10 pb-8 grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-6">
                 <div className="sm:col-span-3">
                     <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                        Full Name
+                        Full Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -81,7 +81,7 @@ const Page = () => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="username" className="block text-sm font-medium leading-6 text-gray-900">
-                        User Name
+                        User Name<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -98,7 +98,7 @@ const Page = () => {
 
                 <div className="sm:col-span-4">
                     <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                        Email address
+                        Email address<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -115,7 +115,7 @@ const Page = () => {
 
                 <div className="sm:col-span-2">
                     <label htmlFor="status" className="block text-sm font-medium leading-6 text-gray-900">
-                        Select Role
+                        Select Role<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <select
@@ -135,7 +135,7 @@ const Page = () => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                        Password
+                        Password<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
@@ -152,7 +152,7 @@ const Page = () => {
 
                 <div className="sm:col-span-3">
                     <label htmlFor="confirm_password" className="block text-sm font-medium leading-6 text-gray-900">
-                        Confirm Password
+                        Confirm Password<span className="text-red-600">*</span>
                     </label>
                     <div className="mt-2">
                         <input
