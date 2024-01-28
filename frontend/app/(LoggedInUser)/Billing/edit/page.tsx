@@ -62,6 +62,25 @@ const Page = (params: any) => {
         }));
     };
 
+    const handleChargesChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, index: number) => {
+        setData((prevData: any) => {
+            const updatedPreviewData = [...prevData.previewData];
+            const updatedDetails = {
+                ...updatedPreviewData[index].details,
+                [e.target.name]: e.target.value
+            };
+            updatedPreviewData[index] = {
+                ...updatedPreviewData[index],
+                details: updatedDetails
+            };
+            return {
+                ...prevData,
+                previewData: updatedPreviewData
+            };
+        });
+    };
+
+
     return (
         <div className='pt-4 flex w-full flex-col items-center max-h-screen overflow-y-auto'>
             <form onSubmit={handleSubmit} className='mx-auto w-11/12 mt-4 h-fit p-6 bg-gray-100 rounded-md'>
@@ -242,20 +261,20 @@ const Page = (params: any) => {
                                     <td className="py-2 px-2 text-center">
                                         <input
                                             type="text"
-                                            name="OthersText"
-                                            id="OthersText"
-                                            value={row?.details?.OtherChargesText}
-                                            onChange={(e) => handleChange(e)}
+                                            name="OtherText"
+                                            id="OtherText"
+                                            defaultValue={row?.details?.OtherChargesText}
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             placeholder="Enter charges type"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                         <input
                                             type="number"
-                                            name="OthersCharges"
+                                            name="OtherCharges"
                                             id="OthersCharges"
-                                            onChange={(e) => handleChange(e)}
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             min={0}
-                                            value={row?.details?.OtherCharges}
+                                            defaultValue={row?.details?.OtherCharges}
                                             placeholder="Enter charges amount"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
@@ -264,11 +283,10 @@ const Page = (params: any) => {
                                     <td className="py-2 px-2 text-center">
                                         <input
                                             type="text"
-                                            name="ServiceText"
+                                            name="ServiceChargesText"
                                             id="ServiceText"
-                                            onChange={(e) => handleChange(e)}
-                                            autoComplete="ServiceText"
-                                            value={row?.details?.ServiceChargesText}
+                                            onChange={(e) => handleChargesChange(e,index)}
+                                            defaultValue={row?.details?.ServiceChargesText}
                                             placeholder="Enter service type"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
@@ -276,10 +294,9 @@ const Page = (params: any) => {
                                             type="number"
                                             name="ServiceCharges"
                                             id="ServiceCharges"
-                                            onChange={(e) => handleChange(e)}
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             min={0}
-                                            value={row?.details?.ServiceCharges}
-                                            autoComplete="ServiceCharges"
+                                            defaultValue={row?.details?.ServiceCharges}
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </td>
@@ -289,24 +306,22 @@ const Page = (params: any) => {
                                             type="text"
                                             name="ArrearsText"
                                             id="ArrearsText"
-                                            onChange={(e) => handleChange(e)}
-                                            value={row?.details?.ArrearsText}
+                                            onChange={(e) => handleChargesChange(e,index)}
+                                            defaultValue={row?.details?.ArrearsText}
                                             placeholder="Enter arrears type"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                         <input
                                             type="number"
-                                            name="ServiceCharges"
-                                            id="ServiceCharges"
-                                            onChange={(e) => handleChange(e)}
+                                            name="Arrears"
+                                            id="Arrears"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             min={0}
                                             placeholder="Enter arrears charges"
-                                            value={row?.details?.Arrears}
+                                            defaultValue={row?.details?.Arrears}
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                     </td>
-
-
                                 </tr>
                             ))}
                         </tbody>

@@ -6,12 +6,15 @@ import { AuthContext } from "@/app/_context/AuthContext";
 import { useRouter } from "next/navigation";
 import { fetch_meter } from "@/utils/dashboard";
 import { update_unitAdjustment, fetch_unitAdjustment } from "@/utils/unit_adjustment";
+import Fetching from "@/app/_component/loading/fetching";
+
 
 const Page = (params: any) => {
 
     const { user } = useContext(AuthContext);
     const [meters, setMeters] = useState([]);
     const [data, setData] = useState({} as any);
+    const [isLoadingData, setIsLoadingData] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
@@ -28,12 +31,12 @@ const Page = (params: any) => {
             const data = await fetch_unitAdjustment(user.token, user.user.id, params.searchParams.id);
             console.log(data)
             if (data?.status == 200) {
-                setData(data?.message?.unitAdjustment
-                );
+                setData(data?.message?.unitAdjustment);
             } else {
                 alert(data?.message);
                 router.push('/Dashboard');
             }
+            setIsLoadingData(false);
         }
         fetch_meters();
         fetch_adj();
@@ -67,6 +70,11 @@ const Page = (params: any) => {
         return date;
     };
 
+    if (isLoadingData) {
+        return (
+            <Fetching />
+        )
+    }
 
     return (
         <form onSubmit={handleSubmit} className='m-auto w-3/5 p-10 bg-gray-100 rounded-md'>

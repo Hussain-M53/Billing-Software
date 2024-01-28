@@ -17,7 +17,12 @@ module.exports = {
             description: description,
             created_by: req.query.user_id,
         });
-
+        //logging data
+        await ActivityLogController.create(
+            'Create Floor',
+            'floor name = ' + name + ' is created',
+            req.query.user_id
+        );
         response = res.status(201).json({
             message: 'Floor created successfully.',
             floor: FloorResource(floor)
@@ -92,12 +97,18 @@ module.exports = {
             description: description,
             updated_by: req.query.user_id,
         })
-        await floor.save()
+        await floor.save();
+        //logging data
+        await ActivityLogController.create(
+            'Update Floor',
+            'floor name = ' + name + ' is updated',
+            req.query.user_id
+        );
         return res.status(201).json({ message: 'Floor updated successfully.', floor: await FloorResource(floor) });
     },
     async destroy(req, res) {
         const id = req.params.id;
-        
+
         let space = await Space.findAndCountAll({
             where: {
                 floor_id: id
@@ -107,11 +118,17 @@ module.exports = {
         if (space.count > 0) {
             return res.status(409).json({ message: 'This floor is associated with some spaces' });
         } else {
-            await Floor.destroy({
+            const floor  = await Floor.destroy({
                 where: {
                     id: id
                 }
             })
+            //logging data
+            await ActivityLogController.create(
+                'Delete Floor',
+                'floor name = ' + floor.name + ' is deleted',
+                req.query.user_id
+            );
         }
         return res.status(200).json({ 'message': 'Floor deleted successfully.' });
     },

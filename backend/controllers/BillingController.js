@@ -32,37 +32,28 @@ module.exports = {
 
         return id;
     },
-    async getResolvedBillingDetails(BillingId, billingDetails, previewData, DocNo, RatePerTonHour) {
+    async getResolvedBillingDetails(BillingId, previewData, DocNo, RatePerTonHour) {
         //' do not generate bill if consumed =0
-        const filteredBillingDetails = billingDetails.filter((billing) => {
-            // Find corresponding units consumed in previewData
-            const filteredData = previewData.find((preview) => preview.CId === billing.CID_web);
-
-            // Check if filteredData exists and UnitsConsumedTonHour is != 0
-            return filteredData && parseFloat(filteredData.UnitsConsumedTonHour) > 0;
+        const filteredBillingDetails = previewData.filter((data) => {
+            return data && parseFloat(data.UnitsConsumedTonHour) > 0;
         });
 
-        //console.log("\n\n filteredBillingDetails",filteredBillingDetails);
-
         const billingDetailsConverted = filteredBillingDetails.map(async (billingDetail) => {
-            return await BillingDetailsResource(BillingId, billingDetail, previewData, DocNo, RatePerTonHour);
+            return await BillingDetailsResource(BillingId, billingDetail, DocNo, RatePerTonHour);
         })
 
-        // //' do not generate bill if consumed =0
         const resolvedBillingDetailsConverted = await Promise.all(billingDetailsConverted); // Resolve the promises
-        //console.log("\n\n upper.... resolvedBillingDetailsConverted",resolvedBillingDetailsConverted);
 
         return resolvedBillingDetailsConverted;
     },
 
     async create(req, res) {
         let response = null;
-        const { DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, billingDetails, previewData, headingText, } = req.body;
+        const { DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, previewData } = req.body;
 
         const id = await module.exports.getNewId();
 
-        const resolvedBillingDetailsConverted = await module.exports.getResolvedBillingDetails(id, billingDetails, previewData, DocNo, RatePerTonHour);
-
+        const resolvedBillingDetailsConverted = await module.exports.getResolvedBillingDetails(id, previewData, DocNo, RatePerTonHour);
         if (resolvedBillingDetailsConverted.length == 0) {
             // no need to save the bill if no customer has consumed anything
             console.error('Cannot create billing as no consumption made');
@@ -81,7 +72,7 @@ module.exports = {
             RatePerTonHour: RatePerTonHour,
             BoardMsg: "",
             Remarks: "",
-            headingText: headingText,
+            headingText: "",
             TransUID: req.query.user_id,
         };
 
@@ -97,15 +88,17 @@ module.exports = {
                     transaction: transaction,
                 })
                     .then(async (savedBilling) => {
-                        //console.log('Billing saved:', savedBilling);
                         billing = savedBilling;
-
-                        // const resolvedBillingDetailsConverted = await Promise.all(billingDetailsConverted); // Resolve the promises
-                        //console.log("\n\n resolvedBillingDetailsConverted",resolvedBillingDetailsConverted);
 
                         // Access the saved billing ID
                         const billingId = BigInt(savedBilling.BillingId);
 
+                        //logging data
+                        await ActivityLogController.create(
+                            'Create Billing',
+                            'Bill id = ' + billingId + ' is created',
+                            req.query.user_id
+                        );
                         // Create an array of BillingDetails objects with the associated billingId
                         const billingDetails = resolvedBillingDetailsConverted.map((details) => {
                             return {
@@ -113,10 +106,6 @@ module.exports = {
                                 BillingId: billingId,
                             };
                         });
-
-                        //console.log("\n\nbillingDetails",billingDetails);
-
-
                         // Save the billing details
                         return BillingDetails.bulkCreate(billingDetails, { transaction: transaction });
                     })
@@ -128,7 +117,6 @@ module.exports = {
                     // no need to send back billing
                     response = res.status(201).json({
                         message: 'Bill(s) generated successfully.',
-                        //billing: await BillingResource(billing)
                     });
                     return response;
                 })
@@ -290,7 +278,7 @@ module.exports = {
 
     async update(req, res) {
         const id = req.params.id;
-        const { DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, billingDetails, previewData, } = req.body;
+        const { DocDate, DocNo, IssueDate, DueDate, fromDate, toDate, RatePerTonHour, previewData, } = req.body;
 
         const order = [
             ['BillingId', 'DESC']
@@ -301,14 +289,12 @@ module.exports = {
         const lastBilling = await BillingDetails.findAll({
             order: order,
             limit: 1,
-        })//.then((result) => {
+        })
         if (lastBilling[0].BillingId > id) {
             // do not allow update
             return res.status(409).json({ 'message': 'Error updating: Bill(s) created after this bill' });
         }
-        //})
 
-        //billing.set({
         let billing = {
             BillingId: id,
             DocDate: DocDate,
@@ -333,13 +319,20 @@ module.exports = {
                 { transaction: transaction, }
             )
 
+            //logging data
+            await ActivityLogController.create(
+                'Update Billing',
+                'Bill id = ' + id + ' is updated',
+                req.query.user_id
+            );
+
             // delete billingDetails and create again
             await BillingDetails.destroy(
                 { where: { BillingId: id } },
                 { transaction: transaction, }
             );
 
-            const resolvedBillingDetailsConverted = await module.exports.getResolvedBillingDetails(id, billingDetails, previewData, DocNo, RatePerTonHour);
+            const resolvedBillingDetailsConverted = await module.exports.getResolvedBillingDetails(id, previewData, DocNo, RatePerTonHour);
 
             // Save the billing details
             await BillingDetails.bulkCreate(resolvedBillingDetailsConverted,
@@ -394,12 +387,19 @@ module.exports = {
                 where: { BillingId: id }
             });
 
+            //logging data
+            await ActivityLogController.create(
+                'Delete Billing',
+                'Bill id = ' + id + ' is deleted',
+                req.query.user_id
+            );
+
         } catch (error) {
             console.error('Error deleting records:', error);
             return res.status(409).json({ 'message': 'Some error occured' });
         }
 
-        return res.status(200).json({ 'message': 'Billing deleted successfully.' });
+        return res.status(200).json({ message: 'Billing deleted successfully.' });
     },
 
     async getPreviewData(req, res) {
@@ -432,10 +432,11 @@ module.exports = {
             return response;
         }
 
-        let billingDetails;
+
 
         returnData = await Promise.all(
             customers.map(async (customer) => {
+                let billingDetails;
                 let PreviousReadingTonHour = 0;
                 let CurrentReadingTonHour = 0;
                 let UnitsConsumedTonHour = 0;
@@ -537,6 +538,26 @@ module.exports = {
                 }
 
                 UnitsConsumedTonHour = CurrentReadingTonHour - PreviousReadingTonHour;
+
+                if (billingDetails == null) {
+                    billingDetails = {
+                        RowNo: '',
+                        BillingId: 0,
+                        CID_web: customer.CId,
+                        CName: customer.CName,
+                        Code: customer.Code,
+                        claimedPer: customer.claimedPer,
+                        OtherChargesText: "",
+                        OtherCharges: "",
+                        ArrearsText: "",
+                        Arrears: "",
+                        ServiceChargesText: "",
+                        ServiceCharges: "",
+                        AdditionalChargesText: "",
+                        AdditionalCharges: "",
+                        CodeName: customer.Code + ' - ' + customer.CName,
+                    }
+                }
                 // complete 1st customer
                 const data = {
                     CId: customer.CId,
@@ -642,7 +663,7 @@ module.exports = {
             return response;
         }
         const returnData = {
-            dtBillingMonth: dtBillingMonth,
+            DocDate: dtBillingMonth,
             DocNo: DocNo,
             IssueDate: IssueDate,
             DueDate: DueDate,
@@ -656,24 +677,58 @@ module.exports = {
 
     async generateBillPdf(req, res) {
 
-        if (!fs.existsSync('./public/files')) {
-            fs.mkdirSync('./public/files', { recursive: true });
-        }
         let { billing_id, customer_id } = req.query;
+        console.log(`billing id ${billing_id}`);
+        console.log(`customer id ${customer_id}`);
+
+        let billing = await Billing.findByPk(billing_id);
+        billing = await BillingResource(billing)
+
+        let order = [
+            ['BillingId', 'DESC']
+        ];
+
+        let billingHistory = await BillingDetails.findAll({
+            where: {
+                CID_web: customer_id,
+                BillingId:
+                {
+                    [Op.ne]: billing_id,
+
+                },
+                RowNo:
+                {
+                    [Op.lt]: billing.billingDetails[0].RowNo
+                }
+            },
+            order: order,
+            limit: 12,
+        })
+
+        billingHistory = await Promise.all(
+            billingHistory.map(async (billingDetail) => {
+                return { ...billingDetail.dataValues };
+            })
+        );
+
+        const billingDetails = billing.billingDetails.filter(billingDetail => billingDetail.CID_web == customer_id);
+        billing.billingDetails = billingDetails;
+
+        if (!fs.existsSync(`./public/files/${billing.DocNo.split('-')[1]}/${billing.DocNo.split('-')[0]}`)) {
+            fs.mkdirSync(`./public/files/${billing.DocNo.split('-')[1]}/${billing.DocNo.split('-')[0]}`, { recursive: true });
+        }
 
         var doc = new PDFDocument();
-        doc.pipe(fs.createWriteStream("./public/files/bill.pdf"));
+        doc.pipe(fs.createWriteStream(`./public/files/${billing.DocNo.split('-')[1]}/${billing.DocNo.split('-')[0]}/${billing.billingDetails[0].CodeName}.pdf`));
 
-        const backgroundColor = '#d9d9d9'; // Light gray background
-        const textColor = '#333333'; // Dark text for contrast
+        const backgroundColor = '#d9d9d9';
+        const textColor = '#333333';
 
-        // Draw the background rectangle for the header
         doc.rect(0, 0, doc.page.width, 100).fill(backgroundColor);
         doc.fillColor(textColor);
 
-        // Add the company information
-        const companyInfoX = 30; // X position for the company information text
-        const companyInfoY = 20;  // Y position for the company information text
+        const companyInfoX = 30;
+        const companyInfoY = 20;
 
         doc.fontSize(16)
             .font('Helvetica-Bold')
@@ -697,29 +752,21 @@ module.exports = {
         var xPos = doc.page.width * 0.4;
         var yPos = 70;
 
-        // Define the font size and style
         doc.fontSize(11).font('Helvetica-Bold');
-
-        // // Draw the labels
         doc.text('Bill Reference:', xPos + 20, yPos)
             .moveUp()
             .text('Issue Date:', xPos + 130, yPos)
             .moveUp()
             .text('Billing Month:', xPos + 220, yPos);
 
-        // Move down a bit to draw the values
         yPos += 15;
 
-        // Change to normal font for the values
         doc.font('Helvetica').fontSize(10);
-
-        // Draw the values
-        doc.text('JS-15 A-12-2022', xPos + 20, yPos, { align: 'left' })
+        doc.text(billing?.billingDetails[0].BillNo, xPos + 20, yPos, { align: 'left' })
             .moveUp()
-            .text('01-Jan-2023', xPos + 130, yPos, { align: 'left' })
+            .text(billing?.IssueDate, xPos + 130, yPos, { align: 'left' })
             .moveUp()
-            .text('December, 2022', xPos + 220, yPos, { align: 'left' });
-
+            .text(billing?.DocNo, xPos + 220, yPos, { align: 'left' });
 
         doc.moveTo(xPos + 10, yPos - 20)
             .lineTo(560, yPos - 20)
@@ -727,32 +774,26 @@ module.exports = {
             .lineWidth(1)
             .stroke();
 
-
-
         doc.rect(30, 130, 210, 85).stroke()
-        // Define positions and styles
         const leftBlockX = 35;
-        const rightBlockX = 35; // Adjust this depending on the width of your content
+        const rightBlockX = 35;
         const initialY = 140;
         const finalY = 260;
         const lineHeight = 20;
         const lineLength = 200;
-        const valueOffset = 50; // Horizontal space between label and value
+        const valueOffset = 50;
 
-
-        // Set the font size and font for the document
         doc.fontSize(10).font('Helvetica');
-
         doc.text('Customer: ', leftBlockX, initialY);
         doc.text('Floor: ', leftBlockX, initialY + lineHeight);
         doc.text('Space: ', leftBlockX, initialY + lineHeight * 2);
         doc.text('Meter: ', leftBlockX, initialY + lineHeight * 3);
         doc.fontSize(10).font('Helvetica-Bold');
-        doc.text('JS Lands (Private) Limited', leftBlockX + valueOffset, initialY);
-        doc.text('FLOOR 15', leftBlockX + valueOffset, initialY + lineHeight);
-        doc.text('Space 125', leftBlockX + valueOffset, initialY + lineHeight * 2);
-        doc.text('Meter 123', leftBlockX + valueOffset, initialY + lineHeight * 3);
-        // Draw lines under left block
+
+        doc.text(billing.billingDetails[0].CName, leftBlockX + valueOffset, initialY);
+        doc.text(await billing.billingDetails[0].customer.space.floor.name, leftBlockX + valueOffset, initialY + lineHeight);
+        doc.text(await billing.billingDetails[0].customer.space.name, leftBlockX + valueOffset, initialY + lineHeight * 2);
+        doc.text(await billing.billingDetails[0].customer.space.meter.name, leftBlockX + valueOffset, initialY + lineHeight * 3);
         doc.moveTo(leftBlockX, initialY + 15)
             .lineTo(leftBlockX + lineLength, initialY + 15)
             .moveTo(leftBlockX, initialY + lineHeight + 15)
@@ -761,55 +802,40 @@ module.exports = {
             .lineTo(leftBlockX + lineLength, initialY + 2 * lineHeight + 15)
             .stroke();
 
-
-        // Length of the lines under text
         const blockPadding = 5;
         const boxWidth = lineLength + blockPadding * 2;
         const boxHeight = lineHeight * 2 + blockPadding * 4;
 
-        // Draw a rectangle around the right block for the box background
         doc.rect(rightBlockX - blockPadding, finalY, boxWidth, boxHeight)
-            .fillOpacity(1) // Light background fill
-            .fill('yellow') // Light grey color for the box background
-            .fillOpacity(1); // Reset fill opacity for text
+            .fillOpacity(1)
+            .fill('yellow')
+            .fillOpacity(1);
 
-        // Set the font size and font for the document
         doc.fontSize(12).font('Helvetica');
-
-        // Right block - Payable Amount
-        doc.fillColor('black') // Text color
+        doc.fillColor('black')
             .text('Payable Amount', rightBlockX + boxWidth * 0.26, finalY + 10)
             .fontSize(20).font('Helvetica-Bold')
-            .text('44,701.66', rightBlockX + boxWidth * 0.25, finalY + lineHeight + 10);
+            .text(billing.billingDetails[0].TotalPayableAmount, rightBlockX + boxWidth * 0.25, finalY + lineHeight + 10);
 
-
-
-        // Draw a rectangle around the right block for the box background
         doc.rect(rightBlockX - blockPadding, finalY + 80, boxWidth, boxHeight)
-            .fillOpacity(0.6) // Light background fill
-            .fill('blue')// Light grey color for the box background
+            .fillOpacity(0.6)
+            .fill('blue')
             .fillOpacity(1);
 
         doc.fontSize(14).font('Helvetica');
-        // Right block - Due Date
-        doc.fillColor('white') // Text color
+        doc.fillColor('white')
             .text('Due Date', rightBlockX + boxWidth * 0.34, finalY + 90 + blockPadding)
             .fontSize(20).font('Helvetica-Bold')
-            .text('16-Jan-2023', rightBlockX + boxWidth * 0.20, finalY + 90 + lineHeight + blockPadding);
-
-
+            .text(billing.DueDate, rightBlockX + boxWidth * 0.20, finalY + 90 + lineHeight + blockPadding);
 
 
         var yPos = 110;
-        // Billing History Section Header
         doc.fontSize(12)
             .font('Helvetica-Bold')
             .text('Billing History', 270, yPos, { align: 'center' });
 
-        // Draw a rectangle for the Billing History section header
         doc.rect(260, yPos + 20, 310, 20).fillAndStroke('#000000', '#FFFFFF');
 
-        // Headers for Billing History Table
         doc.fontSize(10)
             .font('Helvetica-Bold')
             .fillColor('#FFFFFF')
@@ -817,63 +843,38 @@ module.exports = {
             .text('Units (Kilo Watt-Hour)', 290, yPos + 25, { continued: true })
             .text('Billing Amount', 320, yPos + 25);
 
-        // Remove fill color for table rows
         doc.fillColor('#000000');
-
-        // Billing History Data Rows
-        let billingHistory = [
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-            { month: 'Nov-2022', units: '9,234.00', amount: '415,530.00' },
-            { month: 'Oct-2022', units: '8,143.00', amount: '293,148.00' },
-        ];
 
         let rowYPos = yPos + 45;
 
-        billingHistory.forEach(function (item, index) {
-            // Alternate row color
-            if (index % 2 === 0) {
-                doc.rect(260, rowYPos, 310, 20).fillAndStroke('#D3D3D3', '#000000');
-            } else {
-                doc.strokeColor('#000000').rect(260, rowYPos, 310, 20).stroke();
-            }
+        await Promise.all(
+            billingHistory.map(async (item, index) => {
 
-            // Reset fill color for text
-            doc.fillColor('#000000');
+                if (index % 2 === 0) {
+                    doc.rect(260, rowYPos, 310, 20).fillAndStroke('#D3D3D3', '#000000');
+                } else {
+                    doc.strokeColor('#000000').rect(260, rowYPos, 310, 20).stroke();
+                }
 
-            doc.fontSize(10)
-                .font('Helvetica')
-                .text(item.month, 270, rowYPos + 5, { width: 140, align: 'left' })
-                .text(item.units, 290, rowYPos + 5, { width: 140, align: 'right' })
-                .text(item.amount, 410, rowYPos + 5, { width: 140, align: 'right' });
-
-            rowYPos += 20;
-        });
-
+                doc.fillColor('#000000');
+                doc.fontSize(10)
+                    .font('Helvetica')
+                    .text(item.BillNo.split('-')[2] + '-' + item.BillNo.split('-')[3], 270, rowYPos + 5, { width: 140, align: 'left' })
+                    .text(item.UnitsConsumedTonHour, 290, rowYPos + 5, { width: 140, align: 'right' })
+                    .text(item.TotalPayableAmount, 410, rowYPos + 5, { width: 140, align: 'right' });
+                rowYPos += 20;
+            })
+        );
 
         var yPos = 400;
-        // Chilled Water Energy Consumption Section Header
         doc.fontSize(12)
             .font('Helvetica-Bold')
             .text('Electrical Energy Consumption', 70, yPos + 20, { align: 'center' });
 
-        // Draw a rectangle for the Energy Consumption section
         doc.rect(50, yPos + 40, 500, 240).stroke();
-
-        // Inside Header: Energy Consumed
         doc.fontSize(10)
             .font('Helvetica')
             .text('Energy Consumed', 80, yPos + 65);
-
-        // Draw inner headers with rectangles
         doc.fontSize(10)
             .font('Helvetica')
             .rect(80, yPos + 80, 220, 20).stroke()
@@ -882,21 +883,18 @@ module.exports = {
             .rect(300, yPos + 80, 220, 20).stroke()
             .text('Current Reading', 310, yPos + 85);
 
-        // Table Row: Previous and Current Readings
         doc.fontSize(10)
             .font('Helvetica')
-            .text('01-Dec-2022', 90, yPos + 105)
-            .text('645,860', 200, yPos + 105)
+            .text(billing.fromDate, 90, yPos + 105)
+            .text(billing.billingDetails[0].PreviousReadingTonHour, 200, yPos + 105)
             .text('KW-Hour', 240, yPos + 105)
-            .text('31-Dec-2022', 310, yPos + 105)
-            .text('673,030', 420, yPos + 105)
+            .text(billing.toDate, 310, yPos + 105)
+            .text(billing.billingDetails[0].CurrentReadingTonHour, 420, yPos + 105)
             .text('KW-Hour', 460, yPos + 105);
 
-        // Sub-header: Your Energy Charges for the Period
         doc.fontSize(10)
             .text('Your Energy Charges for the Period', 80, yPos + 135);
 
-        // Table Row: Charges
         doc.fontSize(10)
             .rect(80, yPos + 150, 120, 15).stroke()
             .text('Units(Kilo Watt-Hour)', 90, yPos + 152)
@@ -905,49 +903,41 @@ module.exports = {
             .rect(300, yPos + 150, 220, 15).stroke()
             .text('Amount', 310, yPos + 152);
 
-        // Charges Data
         doc.fontSize(10)
-            .text('27,170', 100, yPos + 170, { width: 90, align: 'right' })
-            .text('45.00', 200, yPos + 170, { width: 90, align: 'right' })
+            .text(billing.billingDetails[0].UnitsConsumedTonHour, 100, yPos + 170, { width: 90, align: 'right' })
+            .text(billing.RatePerTonHour, 200, yPos + 170, { width: 90, align: 'right' })
             .font('Helvetica-Bold')
-            .text('1,222,650.00', 385, yPos + 170, { width: 130, align: 'right' });
+            .text(billing.billingDetails[0].Amount, 385, yPos + 170, { width: 130, align: 'right' });
 
-        // Other Charges
         doc.fontSize(10).font('Helvetica')
             .text('Other Charges', 90, yPos + 190)
             .rect(300, yPos + 185, 220, 15).stroke()
-            .text('0.00', 385, yPos + 190, { width: 130, align: 'right' });
+            .text(billing.billingDetails[0].OtherCharges, 385, yPos + 190, { width: 130, align: 'right' });
 
-        // Arrears
         doc.fontSize(10)
             .text('Arrears', 90, yPos + 210)
             .rect(300, yPos + 205, 220, 15).stroke()
-            .text('0.00', 385, yPos + 210, { width: 130, align: 'right' });
+            .text(billing.billingDetails[0].Arrears, 385, yPos + 210, { width: 130, align: 'right' });
 
-        // Sensor/Panel Service Charges
         doc.fontSize(10)
             .text('Service Charges', 90, yPos + 230)
             .rect(300, yPos + 225, 220, 15).stroke()
-            .text('0.00', 385, yPos + 230, { width: 130, align: 'right' });
+            .text(billing.billingDetails[0].ServiceCharges, 385, yPos + 230, { width: 130, align: 'right' });
 
-        // Total Payable Amount
         doc.fontSize(10)
             .font('Helvetica-Bold')
             .text('Total Payable Amount', 90, yPos + 250);
 
-        // Draw Total Payable Amount Value
         doc.fontSize(10)
             .font('Helvetica')
             .rect(300, yPos + 245, 220, 20).stroke().font('Helvetica-Bold')
-            .text('1,222,650.00', 385, yPos + 250, { width: 130, align: 'right' });
+            .text(billing.billingDetails[0].TotalPayableAmount, 385, yPos + 250, { width: 130, align: 'right' });
 
-        // Footer Section with 'Prepared By' and 'Checked By'
         let footerTop = yPos + 305;
         doc.fontSize(10)
             .text('Prepared By', 70, footerTop)
             .text('Checked By', 320, footerTop);
 
-        // Lines for signatures
         doc.moveTo(130, footerTop + 15)
             .lineTo(280, footerTop + 15)
             .stroke();
@@ -955,11 +945,8 @@ module.exports = {
             .lineTo(530, footerTop + 15)
             .stroke();
 
+        doc.end();
 
-
-
-
-
-
+        return res.status(200).json({ message: "Bill pdf exported successfully" });
     }
 }

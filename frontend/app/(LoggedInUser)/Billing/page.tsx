@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState } from 'react'
+import { FormEvent, useContext, useEffect, useState } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
-import { fetch_billings } from '../../../utils/billing'
+import { delete_billing, fetch_billings } from '../../../utils/billing'
 import Authorizing from "@/app/_component/loading/authorizing";
 import Fetching from "@/app/_component/loading/fetching";
-import { PencilIcon } from "@heroicons/react/24/outline";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
 const Page = () => {
   const router = useRouter();
@@ -44,13 +44,22 @@ const Page = () => {
     }
 
     fetch_data();
-  }, [search, activePage])
+  }, [search, activePage,isLoadingData])
 
 
   const formatDate = (dateString: Date) => {
     const date = new Date(dateString);
     return (date.getDate() + '-' + date.getMonth() + '-' + date.getFullYear());
   };
+
+  const deleteBill = async (e: FormEvent, id: number) => {
+    e.preventDefault();
+    if (confirm("Are you sure, you want to delete?")) {
+      setIsLoadingData(true);
+      const data = await delete_billing(user.token, user.user.id, id);
+      alert(data?.message.message);
+    }
+  }
 
   if (isAuthorizing) {
     return (
@@ -96,6 +105,7 @@ const Page = () => {
               <th className="py-3 px-2 text-center">To Date</th>
               <th className="py-3 px-2 text-center">Rate per KWH</th>
               <th className="py-3 px-2 text-center">Edit</th>
+              <th className="py-3 px-2 text-center">Delete</th>
               <th className="py-3 px-2 text-center">Details</th>
               <th className="py-3 px-2 text-center">Print</th>
 
@@ -133,6 +143,14 @@ const Page = () => {
                           id: row?.BillingId,
                         }
                       }}><PencilIcon width={20} height={20} /></Link>
+                    </div>
+                  </div>
+                </td>
+
+                <td className="py-3 px-6 text-center">
+                  <div className="flex item-center justify-center">
+                    <div className="w-4 mr-2 transform text-red-500 hover:text-red-300 hover:scale-110">
+                      <button onClick={(e) => deleteBill(e, row?.BillingId)}><TrashIcon width={20} height={20} /></button>
                     </div>
                   </div>
                 </td>

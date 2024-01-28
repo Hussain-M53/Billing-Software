@@ -16,7 +16,7 @@ const Page = () => {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         const create = async () => {
-            const response = await create_billing(user.token, user.user.id);
+            const response = await create_billing(user.token, user.user.id,data);
             if (response!.status == 201) {
                 alert(response?.message?.message);
                 router.push('/Billing');
@@ -38,21 +38,21 @@ const Page = () => {
             }
         }
 
-        const fetchDetails = async () => {
-            const response = await fetch_billingDetails_template(user.token, user.user.id);
-            if (response?.status == 200) {
-                console.log(response)
-                setData((prevData: any) => ({
-                    ...prevData,
-                    billingDetails: response?.message.billingDetails
-                }));
-            } else {
-                alert(response?.message);
-            }
-        }
+        // const fetchDetails = async () => {
+        //     const response = await fetch_billingDetails_template(user.token, user.user.id);
+        //     if (response?.status == 200) {
+        //         console.log(response)
+        //         setData((prevData: any) => ({
+        //             ...prevData,
+        //             billingDetails: response?.message.billingDetails
+        //         }));
+        //     } else {
+        //         alert(response?.message);
+        //     }
+        // }
 
         fetchBills();
-        fetchDetails();
+        // fetchDetails();
 
     }, [])
 
@@ -78,6 +78,25 @@ const Page = () => {
         }));
     };
 
+    const handleChargesChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,index : number) => {
+        setData((prevData: any) => {
+            const updatedPreviewData = [...prevData.previewData];
+            const updatedDetails = {
+                ...updatedPreviewData[index].details,
+                [e.target.name]: e.target.value
+            };
+            updatedPreviewData[index] = {
+                ...updatedPreviewData[index],
+                details: updatedDetails
+            };
+            return {
+                ...prevData,
+                previewData: updatedPreviewData
+            };
+        });
+    };
+
+
     return (
         <div className='pt-4 flex w-full flex-col items-center max-h-screen overflow-y-auto'>
             <form onSubmit={handleSubmit} className='mx-auto w-11/12 mt-4 h-fit p-6 bg-gray-100 rounded-md'>
@@ -92,7 +111,7 @@ const Page = () => {
                                 name="DocDate"
                                 id="DocDate"
                                 autoComplete="DocDate"
-                                defaultValue={data?.dtBillingMonth}
+                                defaultValue={data?.DocDate}
                                 onChange={(e) => handleChange(e)}
                                 className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                             />
@@ -257,20 +276,18 @@ const Page = () => {
                                     <td className="py-2 px-2 text-center">
                                         <input
                                             type="text"
-                                            name="OthersText"
-                                            id="OthersText"
-                                            onChange={(e) => handleChange(e)}
-                                            autoComplete="OthersText"
+                                            name="OtherChargesText"
+                                            id="OtherChargesText"
                                             placeholder="Enter charges type"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                         <input
                                             type="number"
-                                            name="OthersCharges"
-                                            id="OthersCharges"
-                                            onChange={(e) => handleChange(e)}
+                                            name="OtherCharges"
+                                            id="OtherCharges"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             min={0}
-                                            autoComplete="OthersCharges"
                                             placeholder="Enter charges amount"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
@@ -279,10 +296,9 @@ const Page = () => {
                                     <td className="py-2 px-2 text-center">
                                         <input
                                             type="text"
-                                            name="ServiceText"
-                                            id="ServiceText"
-                                            onChange={(e) => handleChange(e)}
-                                            autoComplete="ServiceText"
+                                            name="ServiceChargesText"
+                                            id="ServiceChargesText"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             placeholder="Enter service type"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
@@ -290,9 +306,8 @@ const Page = () => {
                                             type="number"
                                             name="ServiceCharges"
                                             id="ServiceCharges"
-                                            onChange={(e) => handleChange(e)}
                                             min={0}
-                                            autoComplete="ServiceCharges"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             placeholder="Enter service amount"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
@@ -303,15 +318,15 @@ const Page = () => {
                                             type="text"
                                             name="ArrearsText"
                                             id="ArrearsText"
-                                            onChange={(e) => handleChange(e)}
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             placeholder="Enter arrears type"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                         />
                                         <input
                                             type="number"
-                                            name="ServiceCharges"
-                                            id="ServiceCharges"
-                                            onChange={(e) => handleChange(e)}
+                                            name="Arrears"
+                                            id="Arrears"
+                                            onChange={(e) => handleChargesChange(e,index)}
                                             min={0}
                                             placeholder="Enter arrears charges"
                                             className="pl-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"

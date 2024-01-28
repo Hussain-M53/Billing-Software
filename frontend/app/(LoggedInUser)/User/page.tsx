@@ -96,7 +96,7 @@ const Page = () => {
       <div className="bg-white shadow-md rounded-md mx-10 my-4">
         <table className="min-w-max w-full table-auto">
           <thead>
-            <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
+            <tr className="bg-gray-600 text-gray-200 text-sm leading-normal">
               <th className="sticky top-0 py-3 px-6 text-left ">Name</th>
               <th className="sticky top-0 py-3 px-6 text-left ">UserName</th>
               <th className="sticky top-0 py-3 px-6 text-center ">Email</th>

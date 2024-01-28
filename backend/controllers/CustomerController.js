@@ -49,6 +49,12 @@ module.exports = {
                 created_by: req.query.user_id,
             }
         );
+        //logging data
+        await ActivityLogController.create(
+            'Create Customer',
+            'customer name = ' + CName + ' is created',
+            req.query.user_id
+        );
         response = res.status(201).json({
             message: 'Customer created successfully.',
             customer: CustomerResource(customer)
@@ -143,6 +149,12 @@ module.exports = {
             updated_by: req.query.user_id,
         })
         await customer.save()
+        //logging data
+        await ActivityLogController.create(
+            'Update Customer',
+            'customer name = ' + CName + ' is updated',
+            req.query.user_id
+        );
         return res.status(201).json({ message: "Customer updated successfully ", customer: await CustomerResource(customer) });
     },
     async destroy(req, res) {
@@ -160,6 +172,12 @@ module.exports = {
             return res.status(409).json({ 'message': 'Cannot delete, Bill(s) generated for this customer.' });
         } else {
             await customer.destroy();
+            //logging data
+            await ActivityLogController.create(
+                'Delete Customer',
+                'customer name = ' + customer.CName + ' is deleted',
+                req.query.user_id
+            );
         }
 
         return res.status(200).json({ message: 'Customer deleted successfully.' });

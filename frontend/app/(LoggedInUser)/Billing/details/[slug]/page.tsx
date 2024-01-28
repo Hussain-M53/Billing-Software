@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect, useState,FormEvent } from 'react'
+import { useContext, useEffect, useState, FormEvent } from 'react'
 import { AuthContext } from "@/app/_context/AuthContext";
-import { fetch_billingsByCustomer, exportPdf } from '../../../../../utils/billing'
+import { fetch_billingsByCustomer, exportPdf, generate_pdf } from '../../../../../utils/billing'
 import Authorizing from "@/app/_component/loading/authorizing";
 import { ArrowLeftCircleIcon } from "@heroicons/react/20/solid";
 
@@ -49,13 +49,12 @@ const Page = (params: any) => {
         fetch_data();
     }, [])
 
-    const export_pdf = async (e:FormEvent,customer_id: String, start_date: String, end_date: String) => {
+    const export_pdf = async (e: FormEvent, customer_id: String, bill_id: String) => {
         e.preventDefault();
-        console.log('first')
-        const response = await exportPdf(user.token, user.user.id, customer_id, start_date, end_date);
-        if(response?.status == 200 ){
-
-        }else{
+        const response = await generate_pdf(user.token, user.user.id, bill_id, customer_id);
+        if (response?.status == 200) {
+            alert(response?.message?.message);
+        } else {
             alert(response?.message?.message);
         }
     }
@@ -99,7 +98,7 @@ const Page = (params: any) => {
             <div className="bg-white shadow-md rounded-xl mx-2 my-4">
                 <table className="min-w-max w-full table-auto">
                     <thead>
-                        <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
+                        <tr className="bg-gray-600 text-gray-200 text-sm leading-normal">
                             <th className="py-2 px-2 text-left">Month</th>
                             <th className="py-2 px-2 text-center">From Date</th>
                             <th className="py-2 px-2 text-center">To Date</th>
@@ -135,7 +134,7 @@ const Page = (params: any) => {
                                 <td className="py-2 px-2 text-center">
                                     <span >{row?.CurrentReadingTonHour}</span>
                                 </td>
-                                <td className="py-2 px-2 text-left">
+                                <td className="py-2 px-2 text-center">
                                     <span>{row?.Amount}</span>
                                 </td>
                                 <td className="py-2 px-2 text-center">
@@ -152,7 +151,7 @@ const Page = (params: any) => {
                                 </td>
 
                                 <td className="py-2 px-2 text-center">
-                                    <button onClick={(e) => export_pdf(e,row?.CID_web, row?.FromDate, row?.ToDate)} className="bg-red-500 hover:bg-transparent border hover:border-red-500 hover:text-red-500 text-white font-bold text-xs py-1 px-2 rounded">
+                                    <button onClick={(e) => export_pdf(e, row?.CID_web, row?.BillingId)} className="bg-red-500 hover:bg-transparent border hover:border-red-500 hover:text-red-500 text-white font-bold text-xs py-1 px-2 rounded">
                                         Export PDF
                                     </button>
                                 </td>

@@ -25,6 +25,12 @@ module.exports = {
             status,
             created_by: req.query.user_id,
         });
+        //logging data
+        await ActivityLogController.create(
+            'Create Meter',
+            'Meter name = ' + name + ' is created',
+            req.query.user_id
+        );
         response = res.status(201).json({
             message: 'Meter created successfully.',
             meter: MeterResource(meter)
@@ -107,7 +113,13 @@ module.exports = {
             status,
             updated_by: req.query.user_id,
         })
-        await meter.save()
+        await meter.save();
+        //logging data
+        await ActivityLogController.create(
+            'Update Meter',
+            'meter name = ' + name + ' is updated',
+            req.query.user_id
+        );
         return res.status(201).json({ message: "meter updated successfully", meter: await MeterResource(meter) });
     },
     async destroy(req, res) {
@@ -122,11 +134,17 @@ module.exports = {
         if (space.count > 0) {
             return res.status(409).json({ 'message': 'This meter cannot be deleted as it is associated with a space' });
         } else {
-            await Meter.destroy({
+            const meter = await Meter.destroy({
                 where: {
                     id: id
                 }
-            })
+            });
+            //logging data
+            await ActivityLogController.create(
+                'Delete Meter',
+                'meter name = ' + meter.name + ' is deleted',
+                req.query.user_id
+            );
         }
         return res.status(200).json({ 'message': 'Meter deleted successfully.' });
     },
@@ -339,7 +357,7 @@ module.exports = {
             fs.mkdirSync('./public/files', { recursive: true });
         }
         let { site_id, building_id, floor_id, customer_id, start_date, end_date } = req.query;
-        let records = await module.exports.extractRecords(site_id, building_id, floor_id, customer_id =-1, start_date, end_date);
+        let records = await module.exports.extractRecords(site_id, building_id, floor_id, customer_id = -1, start_date, end_date);
         console.log(records);
         start_date = moment(start_date).format('DD-MMM-yyyy');
         end_date = moment(end_date).format('DD-MMM-yyyy')

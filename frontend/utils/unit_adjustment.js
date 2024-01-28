@@ -194,7 +194,7 @@ export const update_unitAdjustment = async (token, id, data) => {
 export const delete_unitAdjustment = async (token, id, id_to_delete) => {
     try {
         const response = await api.delete(`unitAdjustments/${id_to_delete}?user_id=${id}&token=${token}`);
-
+        console.log(`delete response  : ${response.data}`);
         // Status code 200: success
         if (response.status === 200) {
             return {

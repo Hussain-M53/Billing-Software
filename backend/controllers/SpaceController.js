@@ -21,6 +21,13 @@ module.exports = {
             created_by: req.query.user_id,
         });
 
+        //logging data
+        await ActivityLogController.create(
+            'Create Space',
+            'space name = ' + name + ' is created',
+            req.query.user_id
+        );
+
         response = res.status(201).json({
             message: 'Space created successfully.',
             space: SpaceResource(space)
@@ -113,7 +120,13 @@ module.exports = {
             floor_id: floor_id,
             updated_by: req.query.user_id,
         })
-        await space.save()
+        await space.save();
+        //logging data
+        await ActivityLogController.create(
+            'Update Space',
+            'space name = ' + name + ' is updated',
+            req.query.user_id
+        );
         return res.status(201).json({ message: 'Space updated successfully.', space: await SpaceResource(space) });
     },
     async destroy(req, res) {
@@ -128,11 +141,17 @@ module.exports = {
             return res.status(409).json({ 'message': 'This space cannot be deleted as it is associated with a customer' });
         } else {
 
-            await Space.destroy({
+            const space = await Space.destroy({
                 where: {
                     id: id
                 }
             })
+            //logging data
+            await ActivityLogController.create(
+                'Delete Space',
+                'space name = ' + space.name + ' is deleted',
+                req.query.user_id
+            );
         }
         return res.status(200).json({ 'message': 'Space deleted successfully.' });
     },

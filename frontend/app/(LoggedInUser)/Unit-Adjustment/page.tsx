@@ -47,7 +47,7 @@ const Page = () => {
         }
 
         fetch_data();
-    }, [search,isLoadingData])
+    }, [search])
 
 
     const formatDate = (dateString: Date) => {
@@ -101,7 +101,7 @@ const Page = () => {
             <div className="bg-white shadow-md rounded-xl mx-10 my-4">
                 <table className="min-w-max w-full table-auto">
                     <thead>
-                        <tr className="bg-gray-200 text-gray-600 text-sm leading-normal">
+                        <tr className="bg-gray-600 text-gray-200 text-sm leading-normal">
                             <th className=" py-3 px-6 text-left">Execution Date</th>
                             <th className=" py-3 px-6 text-left">Meter</th>
                             <th className=" py-3 px-6 text-center">From Date</th>

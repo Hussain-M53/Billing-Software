@@ -18,6 +18,7 @@ const SignIn = () => {
   useEffect(() => {
     const user = localStorage.getItem('user_data');
     if (user != null) {
+      console.log(user)
       router.push('/Dashboard');
     }
     setIsAuthenticating(false);
@@ -30,7 +31,6 @@ const SignIn = () => {
     e.preventDefault();
 
     await authenticate_user(formUser).then(data => {
-      console.log("data ", data)
       if (data!.status == 200) {
         alert("User logged in successfully");
         localStorage.setItem('token', JSON.stringify(data!.message.token));

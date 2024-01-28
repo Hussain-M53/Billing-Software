@@ -1,50 +1,49 @@
-const BillingDetailsResource = async (BillingId, billingDetail, previewData, DocNo, RatePerTonHour) => {
+const BillingDetailsResource = async (BillingId, billingDetail, DocNo, RatePerTonHour) => {
 
     // get preview data of related customer
     //let filteredData = previewData.filter(obj => obj.CId === billingDetail.CID_web && obj.UnitsConsumedTonHour > 0);
-    let filteredData = previewData.filter(obj => obj.CId === billingDetail.CID_web);
+    // let filteredData = previewData.filter(obj => obj.CId === billingDetail.CID_web);
+
+    // //console.log("\n\n filteredData",filteredData);
+
+    // if (filteredData.length > 0)
+    //     filteredData = filteredData[0];
 
     //console.log("\n\n filteredData",filteredData);
+    const OtherCharges = isNaN(parseFloat(billingDetail.details.OtherCharges)) ? 0 : parseFloat(billingDetail.details.OtherCharges);
+    const Arrears = isNaN(parseFloat(billingDetail.details.Arrears)) ? 0 : parseFloat(billingDetail.details.Arrears);
+    const ServiceCharges = isNaN(parseFloat(billingDetail.details.ServiceCharges)) ? 0 : parseFloat(billingDetail.details.ServiceCharges);
+    const AdditionalCharges = isNaN(parseFloat(billingDetail.details.AdditionalCharges)) ? 0 : parseFloat(billingDetail.details.AdditionalCharges);
 
-    if (filteredData.length > 0)
-        filteredData = filteredData[0];
-
-    //console.log("\n\n filteredData",filteredData);
-    const OtherCharges = isNaN(parseFloat(billingDetail.OtherCharges))? 0: parseFloat(billingDetail.OtherCharges);
-    const Arrears = isNaN(parseFloat(billingDetail.Arrears))? 0: parseFloat(billingDetail.Arrears);
-    const ServiceCharges = isNaN(parseFloat(billingDetail.ServiceCharges))? 0: parseFloat(billingDetail.ServiceCharges);
-    const AdditionalCharges = isNaN(parseFloat(billingDetail.AdditionalCharges))? 0: parseFloat(billingDetail.AdditionalCharges);
-
-    const Amount = filteredData.UnitsConsumedTonHour * RatePerTonHour;
+    const Amount = billingDetail.UnitsConsumedTonHour * RatePerTonHour;
     const TotalAmount = Amount + OtherCharges + Arrears + ServiceCharges + AdditionalCharges;
 
-    const TotalPayableAmount = TotalAmount * billingDetail.claimedPer/100;
 
     const convertedData = {
         BillingId: BillingId,
         BillNo: 'JS-' + billingDetail.Code + '-' + DocNo, //JS-15-JUL-2022
-        CID_web: BigInt(billingDetail.CID_web),
-        FromDate: filteredData.fromDate,
-        ToDate: filteredData.toDate,
-        RatePerTonHour: RatePerTonHour,
-        PreviousReadingTonHour: filteredData.PreviousReadingTonHour,
-        CurrentReadingTonHour: filteredData.CurrentReadingTonHour,
-        UnitsConsumedTonHour: filteredData.UnitsConsumedTonHour,
-        OtherChargesText: billingDetail.OtherChargesText,
+        CID_web: BigInt(billingDetail.CId),
+        FromDate: billingDetail.fromDate,
+        ToDate: billingDetail.toDate,
+        RatePerTonHour: BigInt(RatePerTonHour),
+        PreviousReadingTonHour: billingDetail.PreviousReadingTonHour,
+        CurrentReadingTonHour: billingDetail.CurrentReadingTonHour,
+        UnitsConsumedTonHour: billingDetail.UnitsConsumedTonHour,
+        OtherChargesText: billingDetail.details.OtherChargesText,
         OtherCharges: OtherCharges,
-        ArrearsText: billingDetail.ArrearsText,
+        ArrearsText: billingDetail.details.ArrearsText,
         Arrears: Arrears,
-        ServiceChargesText: billingDetail.ServiceChargesText,
+        ServiceChargesText: billingDetail.details.ServiceChargesText,
         ServiceCharges: ServiceCharges,
-        AdditionalChargesText: billingDetail.AdditionalChargesText,
+        AdditionalChargesText: billingDetail.details.AdditionalChargesText,
         AdditionalCharges: AdditionalCharges,
         Amount: Amount,
         TotalAmount: TotalAmount,
-        claimedPer: billingDetail.claimedPer,
-        TotalPayableAmount: TotalPayableAmount,
+        claimedPer: 100,
+        TotalPayableAmount: TotalAmount,
     }
 
-    //console.log("\n\n convertedData",convertedData);
+    console.log("\n\n convertedData", convertedData);
 
     return convertedData;
 }

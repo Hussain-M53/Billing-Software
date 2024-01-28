@@ -31,6 +31,7 @@ module.exports = {
             ).then(async spResult => {
 
                 let data = spResult[0];
+                console.log(data);
 
                 // now reset totalizer
                 try {
@@ -43,6 +44,7 @@ module.exports = {
                             type: db.sequelize.QueryTypes.RAW,
                         },
                     ).then(async spResult => {
+                        console.log(spResult[0]);
 
                         try {
                             spResult = await db.sequelize.query('EXEC Totalizer @TableName = :TableName',
@@ -60,14 +62,16 @@ module.exports = {
                     })
                 } catch (error) {
                     console.error('Error calling stored procedure: Reset not done', error);
+
                     response = res.status(404).json({ error: 'Reset not done, Some Error occured' });
+
                 }
             });
         } catch (error) {
             console.error('Error calling stored procedure: Units not adjusted', error);
             response = res.status(404).json({ error: 'Units not adjusted, Some Error occured' });
         }
-
+        console.log(`response  ---------------${response}`);
         return response;
     },
 
@@ -105,6 +109,12 @@ module.exports = {
             unitAdjustmentRes.meter.history_config_id, false, meterRes.history_config.TABLE_NAME,)
 
         if (response == null) {
+            //logging data
+            await ActivityLogController.create(
+                'Create UnitAdjustment',
+                'Unit adjustment id = ' + docNo + ' is created',
+                req.query.user_id
+            );
             response = res.status(201).json({
                 message: 'UnitAdjustment created successfully.',
                 unitAdjustment: unitAdjustmentRes
@@ -137,23 +147,22 @@ module.exports = {
 
             await UnitAdjustment.findAndCountAll({
                 where: condition,
-                // include: [
-                //     {
-                //         model: Meter,
-                //         as: 'meter',
-                //         where: {
-                //             name: {
-                //                 [Op.like]: `%${search}%`
-                //             }
-                //         }
-                //     }
-                // ],
+                include: [
+                    {
+                        model: Meter,
+                        as: 'meter',
+                        where: {
+                            name: {
+                                [Op.like]: `%${search}%`
+                            }
+                        }
+                    }
+                ],
                 order: order,
                 limit,
                 offset
             })
                 .then(async data => {
-                    console.log(data.rows)
                     const unitAdjustments = await UnitAdjustmentCollection(data.rows);
                     const pagination = await Paging.getPagingData(data, currentPage, limit, search);
                     res.send({ unitAdjustments, pagination });
@@ -206,7 +215,13 @@ module.exports = {
             updated_by: req.query.user_id,
         })
 
-        await unitAdjustment.save()
+        await unitAdjustment.save();
+        //logging data
+        await ActivityLogController.create(
+            'Update UnitAdjustment',
+            'Unit adjustment id = ' + docNo + ' is updated',
+            req.query.user_id
+        );
         // perform DB operations
         // if final units = 0 then update all values to zero
         return res.status(201).json({ unitAdjustment: await UnitAdjustmentResource(unitAdjustment) });
@@ -264,22 +279,28 @@ module.exports = {
 
         response = await module.exports.performUnitAdjustment(res, fromDate, toDate, finalUnitsTonHour, diffUnitsTonHour,
             unitAdjustmentRes.meter.history_config_id, false, meterRes.history_config.TABLE_NAME,)
-
         try {
 
             // Delete the parent Billing record
-            await UnitAdjustment.destroy({
+            const ua = await UnitAdjustment.destroy({
                 where: { id: id }
             });
+
+            //logging data
+            await ActivityLogController.create(
+                'Delete UnitAdjustment',
+                'Unit adjustment id = ' + ua.docNo + ' is deleted',
+                req.query.user_id
+            );
 
         } catch (error) {
             console.error('Error deleting records:', error);
             response = res.status(409).json({ 'message': 'Some error occured' });
         }
 
-        if (response == null) {
-            response = res.status(201).json({ 'message': 'Unit Adjustment deleted successfully.' });
-        }
+        // if (response == null) {
+        response = res.status(200).json({ message: 'Unit Adjustment deleted successfully.' });
+        // }
         return response;
     },
 }

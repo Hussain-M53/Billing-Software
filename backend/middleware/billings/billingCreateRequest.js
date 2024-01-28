@@ -23,10 +23,10 @@ exports.BillingCreateRequest = [
     body('RatePerTonHour')
         .isNumeric()
         .withMessage('Invalid rate / ton-hour'),
-    body('billingDetails')
-        .isArray()
-        .custom(value => value.length > 0)
-        .withMessage('Invalid billing details object'),
+    // body('billingDetails')
+    //     .isArray()
+    //     .custom(value => value.length > 0)
+    //     .withMessage('Invalid billing details object'),
     async (req, res, next) => {
         const errors = validationResult(req);
         const {DocNo} = req.body;

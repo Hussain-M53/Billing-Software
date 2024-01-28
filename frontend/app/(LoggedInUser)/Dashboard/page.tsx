@@ -4,7 +4,7 @@ import { MyLineChart } from "../../_component/_charts/lineChart";
 import { BarChart } from "../../_component/_charts/barChart";
 import { AreaChart } from "../../_component/_charts/areaChart";
 import { Menu, Transition } from '@headlessui/react';
-import { FormEvent, Fragment, useContext, useEffect, useState } from 'react';
+import { Fragment, useContext, useEffect, useState } from 'react';
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { fetch_meter, fetch_monthlyData } from "@/utils/dashboard";
@@ -26,8 +26,7 @@ const HomePage = () => {
     { name: 'Sign out', href: '/' },
   ]
 
-  const signOut = (e: FormEvent) => {
-    e.preventDefault()
+  const signOut = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user_data');
     router.push('/');
@@ -40,9 +39,13 @@ const HomePage = () => {
         setMeters(data?.message.meters);
         setIsLoading(false);
 
+      }
+      else if (data?.status == 401) {
+        alert(data?.message);
+        signOut();
       } else {
         alert(data?.message);
-        router.push('/Dashboard');
+        router.push('/');
       }
     }
     fetch_meters();
@@ -51,9 +54,9 @@ const HomePage = () => {
   const getMonthlyData = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-   
+
     const response = await fetch_monthlyData(user.token, user.user.id, data);
-   
+
     setChartData(response?.message.chartData)
     setIsLoading(false);
 
@@ -66,9 +69,9 @@ const HomePage = () => {
 
   if (isLoading) {
     return (
-        <Fetching />
+      <Fetching />
     )
-}
+  }
 
   return (
     <div className="h-screen w-full">
@@ -99,7 +102,7 @@ const HomePage = () => {
                 <Menu.Item key={item.name}>
                   {({ active }) => (
                     item.name == 'Sign out' ?
-                      (<button onClick={(e) => signOut(e)} className={`${active ? 'bg-gray-100' : ''
+                      (<button onClick={(e) => signOut()} className={`${active ? 'bg-gray-100' : ''
                         } w-full text-left block px-4 py-2 text-sm text-gray-700`}>
                         {item.name}
                       </button>) : (

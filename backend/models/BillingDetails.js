@@ -33,8 +33,6 @@ module.exports = (sequelize, DataTypes, Model) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        // BillingId: DataTypes.BIGINT,
-        //    CID_web: DataTypes.BIGINT,
         BillNo: { type: DataTypes.STRING, defaultValue: "", allowNull: false },
         PreviousReadingTonHour: DataTypes.DECIMAL(18, 2),
         CurrentReadingTonHour: DataTypes.DECIMAL(18, 2),

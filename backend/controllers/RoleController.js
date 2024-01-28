@@ -28,6 +28,12 @@ const roleController = {
             key: name.replace(' ', '_').toLowerCase(),
             created_by: req.query.user_id,
         });
+        //logging data
+        await ActivityLogController.create(
+            'Create Role',
+            'Role = ' + name + ' is created',
+            req.query.user_id
+        );
         response = res.status(201).json({ message: 'Role created successfully.', role: role });
         return response;
     },
@@ -47,7 +53,7 @@ const roleController = {
         await ActivityLogController.create(
             'UPDATE Role',
             'Role = ' + name + ' is updated',
-            req.user.user_id
+            req.query.user_id
         );
 
         response = res.status(201).json({ message: 'Role updated successfully.', role: role });
@@ -126,11 +132,17 @@ const roleController = {
                 return res.status(409).json({ message: 'Unauthorized action' });
             }
             else {
-                await Role.destroy({
+                const role = await Role.destroy({
                     where: {
                         id: id
                     }
                 })
+                //logging data
+                await ActivityLogController.create(
+                    'Delete Role',
+                    'Role = ' + role.name + ' is deleted',
+                    req.query.user_id
+                );
                 return res.status(200).json({ message: 'Role deleted successfully.' });
             }
         }
